@@ -21,14 +21,21 @@ function Login() {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
         />
-        <button type = "submit">Login</button>
+        <button type = "submit" onClick={async(e) => {
+          e.preventDefault();
+          const response = await fetch("http://127.0.0.1:8000/Login", {
+  method: "POST",
+});
+
+const data = await response.json();
+console.log(data);}}>Login</button>
         <Link to="/register">
         Don't have an account? Register
         </Link>
       </form>
       </div>
       <div className = "login-img">
-        <img src = "https://images.unsplash.com/photo-1508780709619-79562169bc64?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8cmVnaXN0ZXJ8ZW58MHx8MHx8fDA%3D&auto=format&fit=crop&w=500&q=60" alt="login" />
+        <img src = "https://images.openai.com/static-rsc-4/v3445sXMczduBjD_-iyrfI1GY63X6-9dz-I4G08CHT0tffJ1fzOBJ8V2RhVcPK4c6XM6rZStRVVFkgJqQjONsLh-KBrncEgrdCD2XLE5rtZPoyN-REmZV44bkMfML-QTFBLQzoEn6Nvhdy423wxdleYteNIQ18irSLR44S9JVLenW8ZighblhZwKUVWeLjCz?purpose=fullsize" alt="login" />
       </div>
       
     </div>

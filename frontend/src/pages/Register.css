@@ -4,13 +4,13 @@
   box-sizing: border-box;
 }
 
+
 .register-page {
   min-height: 100vh;
   display: flex;
   justify-content: center;
   align-items: center;
   background-color:#D2C1B6;
-  padding: 20px;
 }
 
 .register-form {
