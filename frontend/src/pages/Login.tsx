@@ -35,7 +35,7 @@ console.log(data);}}>Login</button>
       </form>
       </div>
       <div className = "login-img">
-        <img src = "https://images.openai.com/static-rsc-4/v3445sXMczduBjD_-iyrfI1GY63X6-9dz-I4G08CHT0tffJ1fzOBJ8V2RhVcPK4c6XM6rZStRVVFkgJqQjONsLh-KBrncEgrdCD2XLE5rtZPoyN-REmZV44bkMfML-QTFBLQzoEn6Nvhdy423wxdleYteNIQ18irSLR44S9JVLenW8ZighblhZwKUVWeLjCz?purpose=fullsize" alt="login" />
+        <img src = "https://images.openai.com/static-rsc-4/ZUwf-Vq_6mnMOi62ldwr3ksOndycManfaDJtYppF9vLXXr0vYCCyw8jA8Em71zP5rVX50x-_WKCvVwpQwTwGhB0yeGhUbcWVJi1J4_VdiebSRPsBjpTqK4GgnVtU0IM9aJINHyK_WoNaUx_OlcKDkeMfS8sSBQN1vJfL6WvLKb3EfoKJRtPW3tVZm-4hYQ6c?purpose=inline" alt="login" />
       </div>
       
     </div>
