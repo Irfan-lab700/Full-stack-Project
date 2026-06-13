@@ -1,10 +1,20 @@
+from jose import jwt
+import os 
+from dotenv import load_dotenv
+from datetime import datetime, timedelta
 from passlib.context import CryptContext
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from database import SessionLocal
 from models import User as DBUser
+load_dotenv()
 
+Secret_key = os.getenv("SECRET_KEY")
+if not Secret_key:
+    raise ValueError("SECRET_KEY environment variable is not set")
+ALGORITHM = "HS256"
+ACCESS_TOKEN_EXPIRE_MINUTES = 30
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 app = FastAPI()
@@ -66,6 +76,21 @@ def register_user(user: User):
             "email": new_user.email
         }
     }
+    
+def create_access_token(data: dict):
+    to_encode = data.copy()
+
+    expire = datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+
+    to_encode.update({"exp": expire})
+
+    encoded_jwt = jwt.encode(
+        to_encode,
+        Secret_key,
+        algorithm=ALGORITHM
+    )
+
+    return encoded_jwt
 
 @app.post("/Login")
 def login_user(user: Login):
@@ -82,12 +107,16 @@ def login_user(user: Login):
         return {"success": False, "message": "Incorrect password"}
 
     db.close()
+    token = create_access_token(
+    {"sub": db_user.username}
+)
 
     return {
-        "success": True,
-        "message": "Login successful",
-        "data": {
-            "username": db_user.username,
-            "email": db_user.email
-        }
+    "success": True,
+    "message": "Login successful",
+    "access_token": token,
+    "data": {
+        "username": db_user.username,
+        "email": db_user.email
     }
+}
