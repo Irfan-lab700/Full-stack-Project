@@ -5,6 +5,41 @@ function Register() {
   const [username, setUsername] = useState<string>("");
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
+  const handleSubmit = async (e: any) => {
+  e.preventDefault();
+  if (!username || !email || !password) {
+    alert("All fields required");
+    return;
+  }
+
+  try {
+    const response = await fetch("http://127.0.0.1:8000/Register", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        username,
+        email,
+        password
+      })
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      alert(data.detail);
+      return;
+    }
+
+    alert("Registration successful");
+    console.log(data);
+
+  } catch (error) {
+    alert("Server error");
+    console.log(error);
+  }
+};
   return (
     <div className = "register-page">
     <div className="register-form">
@@ -28,15 +63,9 @@ function Register() {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
         />
-        <button type = "submit" onClick={async(e) => {
-          e.preventDefault();
-          const response = await fetch("http://127.0.0.1:8000/Register", {
-  method: "POST",
-});
-
-const data = await response.json();
-console.log(data);
-        }}>Register </button>
+       <button type="submit" onClick={handleSubmit}>
+  Register
+</button>
 
         <Link to="/login">
         Already have an account? Login

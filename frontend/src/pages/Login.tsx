@@ -1,9 +1,54 @@
 import "./Login.css";
 import { useState } from 'react';
 import { Link } from "react-router-dom";
+
 function Login() {
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
+  const handleLogin = async (e) => {
+e.preventDefault();
+
+const response = await fetch("http://127.0.0.1:8000/Login", {
+method: "POST",
+headers: {
+"Content-Type": "application/json",
+},
+body: JSON.stringify({
+email,
+password,
+}),
+});
+
+const data = await response.json();
+
+if (data.access_token) {
+localStorage.setItem("token", data.access_token);
+
+const profileResponse = await fetch(
+  "http://127.0.0.1:8000/profile",
+  {
+    headers: {
+      Authorization: `Bearer ${data.access_token}`,
+    },
+  }
+);
+
+const profileData = await profileResponse.json();
+
+console.log("PROFILE DATA:", profileData);
+
+}
+
+console.log("TOKEN:", localStorage.getItem("token"));
+console.log("LOGIN DATA:", data);
+
+if (data.success) {
+alert("Login successful");
+} else {
+alert(data.message);
+}
+};
+
   return (
     <div className = "login-page">
     <div className="login-form">
@@ -21,14 +66,7 @@ function Login() {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
         />
-        <button type = "submit" onClick={async(e) => {
-          e.preventDefault();
-          const response = await fetch("http://127.0.0.1:8000/Login", {
-  method: "POST",
-});
-
-const data = await response.json();
-console.log(data);}}>Login</button>
+        <button type = "submit" onClick={handleLogin}>Login</button>
         <Link to="/register">
         Don't have an account? Register
         </Link>

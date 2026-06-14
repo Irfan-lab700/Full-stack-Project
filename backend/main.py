@@ -1,13 +1,18 @@
-from jose import jwt
+from jose import jwt,JWTError
 import os 
 from dotenv import load_dotenv
 from datetime import datetime, timedelta
 from passlib.context import CryptContext
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException,Header
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from database import SessionLocal
 from models import User as DBUser
+from fastapi.security import HTTPBearer
+from fastapi.security import HTTPAuthorizationCredentials
+from fastapi import Depends
+
+security = HTTPBearer()
 load_dotenv()
 
 Secret_key = os.getenv("SECRET_KEY")
@@ -91,6 +96,28 @@ def create_access_token(data: dict):
     )
 
     return encoded_jwt
+def verify_token(token: str):
+    try:
+        print("TOKEN =", token)
+
+        payload = jwt.decode(
+            token,
+            Secret_key,
+            algorithms=[ALGORITHM]
+        )
+
+        print("PAYLOAD =", payload)
+
+        username = payload.get("sub")
+
+        if username is None:
+            return None
+
+        return username
+
+    except JWTError as e:
+        print("JWT ERROR =", e)
+        return None
 
 @app.post("/Login")
 def login_user(user: Login):
@@ -120,3 +147,23 @@ def login_user(user: Login):
         "email": db_user.email
     }
 }
+
+@app.get("/profile")
+def get_profile(
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    token = credentials.credentials
+    print("RAW TOKEN =", token)
+
+    username = verify_token(token)
+
+    if not username:
+        raise HTTPException(
+            status_code=401,
+            detail="Invalid token"
+        )
+
+    return {
+        "message": "Protected route accessed",
+        "username": username
+    }
