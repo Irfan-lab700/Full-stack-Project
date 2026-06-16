@@ -6,47 +6,27 @@ function Login() {
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const handleLogin = async (e) => {
-e.preventDefault();
+  e.preventDefault();
 
-const response = await fetch("http://127.0.0.1:8000/Login", {
-method: "POST",
-headers: {
-"Content-Type": "application/json",
-},
-body: JSON.stringify({
-email,
-password,
-}),
-});
-
-const data = await response.json();
-
-if (data.access_token) {
-localStorage.setItem("token", data.access_token);
-
-const profileResponse = await fetch(
-  "http://127.0.0.1:8000/profile",
-  {
+  const response = await fetch("http://127.0.0.1:8000/Login", {
+    method: "POST",
     headers: {
-      Authorization: `Bearer ${data.access_token}`,
+      "Content-Type": "application/json",
     },
+    body: JSON.stringify({
+      email,
+      password,
+    }),
+  });
+
+  const data = await response.json();
+
+  if (data.success && data.access_token) {
+    localStorage.setItem("token", data.access_token);
+    window.location.href = "/dashboard";
+  } else {
+    alert(data.message);
   }
-);
-
-const profileData = await profileResponse.json();
-
-console.log("PROFILE DATA:", profileData);
-
-}
-
-console.log("TOKEN:", localStorage.getItem("token"));
-console.log("LOGIN DATA:", data);
-
-if (data.success) {
-alert("Login successful");
-} else {
-alert(data.message);
-}
 };
 
   return (
