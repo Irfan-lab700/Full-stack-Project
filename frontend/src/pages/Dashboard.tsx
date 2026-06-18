@@ -62,7 +62,7 @@ onLogout={handleLogout}
           <p>You are successfully logged in</p>
         </>
       ) : (
-        <p>Loading user data...</p>
+        <p>Please wait ... fetching your session </p>
       )}
     </div>
   </div>
