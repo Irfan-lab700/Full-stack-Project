@@ -11,7 +11,10 @@ from models import User as DBUser
 from fastapi.security import HTTPBearer
 from fastapi.security import HTTPAuthorizationCredentials
 from fastapi import Depends
+from database import Base, engine
+import models
 
+Base.metadata.create_all(bind=engine)
 security = HTTPBearer()
 load_dotenv()
 
