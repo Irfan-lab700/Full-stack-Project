@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import Navbar from "../pages/Navbar";
+import Chatbox from "../pages/Chatbox";
 import "./Dashboard.css";
 
 type User = {
@@ -9,6 +10,7 @@ message?: string;
 
 function Dashboard() {
 const [user, setUser] = useState<User | null>(null);
+const [isChatOpen, setIsChatOpen] = useState(false);
 
 useEffect(() => {
 const token = localStorage.getItem("token");
@@ -47,10 +49,10 @@ window.location.href = "/login";
 
 return (
 <>
-<Navbar
-username={user?.username || ""}
-onLogout={handleLogout}
-/>
+  <Navbar
+    username={user?.username || ""}
+    onLogout={handleLogout}
+  />
 
   <div className="dashboard-container">
     <div className="dashboard-card">
@@ -62,10 +64,18 @@ onLogout={handleLogout}
           <p>You are successfully logged in</p>
         </>
       ) : (
-        <p>Please wait ... fetching your session </p>
+        <p>Please wait ... fetching your session</p>
       )}
     </div>
   </div>
+
+  <button
+  className="chatbot-button"
+  onClick={() => setIsChatOpen(!isChatOpen)}
+>
+  💬
+</button>
+<Chatbox isOpen={isChatOpen} />
 </>
 
 );
