@@ -3,13 +3,13 @@
   bottom: 100px;
   right: 30px;
 
-  width: 350px;
-  height: 450px;
+  width: 380px;
+  height: 480px;
 
   background: white;
-  border-radius: 12px;
+  border-radius: 16px;
 
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
 
   display: flex;
   flex-direction: column;
@@ -80,4 +80,22 @@
   max-width: 80%;
 
   margin-bottom: 10px;
+}
+
+.maximized {
+  width: 80vw !important;
+  height: 80vh !important;
+
+  right: 50%;
+  bottom: 50%;
+
+  transform: translate(50%, 50%);
+}
+
+.maximize-btn {
+  background: transparent;
+  border: none;
+  color: white;
+  cursor: pointer;
+  font-size: 18px;
 }

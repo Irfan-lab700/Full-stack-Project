@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import "./Chatbox.css";
 
 type ChatBoxProps = {
@@ -12,6 +12,10 @@ type Message = {
 
 function Chatbox({ isOpen }: ChatBoxProps) {
   const [input, setInput] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [isMaximized, setIsMaximized] = useState(false);
+
+  const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
   const [messages, setMessages] = useState<Message[]>([
     {
@@ -20,61 +24,88 @@ function Chatbox({ isOpen }: ChatBoxProps) {
     },
   ]);
 
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({
+      behavior: "smooth",
+    });
+  }, [messages, loading]);
+
   const handleSend = async () => {
-  if (!input.trim()) return;
+    if (!input.trim()) return;
 
-  const userMessage = input;
+    const userMessage = input;
 
-  setMessages((prev) => [
-    ...prev,
-    {
-      sender: "user",
-      text: userMessage,
-    },
-  ]);
-
-  setInput("");
-
-  try {
-    const response = await fetch(
-      "http://127.0.0.1:8000/chat",
+    setMessages((prev) => [
+      ...prev,
       {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
+        sender: "user",
+        text: userMessage,
+      },
+    ]);
+
+    setInput("");
+
+    try {
+      setLoading(true);
+
+      const response = await fetch(
+        "http://127.0.0.1:8000/chat",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            message: userMessage,
+          }),
+        }
+      );
+
+      const data = await response.json();
+
+      setMessages((prev) => [
+        ...prev,
+        {
+          sender: "bot",
+          text: data.reply,
         },
-        body: JSON.stringify({
-          message: userMessage,
-        }),
-      }
-    );
+      ]);
 
-    const data = await response.json();
+      setLoading(false);
+    } catch (error) {
+      setLoading(false);
 
-    setMessages((prev) => [
-      ...prev,
-      {
-        sender: "bot",
-        text: data.reply,
-      },
-    ]);
-  } catch (error) {
-    setMessages((prev) => [
-      ...prev,
-      {
-        sender: "bot",
-        text: "Server error.",
-      },
-    ]);
-  }
-};
+      setMessages((prev) => [
+        ...prev,
+        {
+          sender: "bot",
+          text: "Server error.",
+        },
+      ]);
+    }
+  };
 
   if (!isOpen) return null;
 
   return (
-    <div className="chat-window">
+    <div
+      className={
+        isMaximized
+          ? "chat-window maximized"
+          : "chat-window"
+      }
+    >
       <div className="chat-header">
-        AI Assistant
+        <span>🤖 AI Assistant</span>
+
+        <button
+          className="maximize-btn"
+          onClick={() =>
+            setIsMaximized(!isMaximized)
+          }
+        >
+          {isMaximized ? "🗗" : "🗖"}
+        </button>
       </div>
 
       <div className="chat-body">
@@ -90,20 +121,30 @@ function Chatbox({ isOpen }: ChatBoxProps) {
             {msg.text}
           </div>
         ))}
+
+        {loading && (
+          <div className="bot-message">
+            Typing...
+          </div>
+        )}
+
+        <div ref={messagesEndRef}></div>
       </div>
 
       <div className="chat-footer">
         <input
-  type="text"
-  placeholder="Type your message..."
-  value={input}
-  onChange={(e) => setInput(e.target.value)}
-  onKeyDown={(e) => {
-    if (e.key === "Enter") {
-      handleSend();
-    }
-  }}
-/>
+          type="text"
+          placeholder="Type your message..."
+          value={input}
+          onChange={(e) =>
+            setInput(e.target.value)
+          }
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              handleSend();
+            }
+          }}
+        />
 
         <button onClick={handleSend}>
           Send
