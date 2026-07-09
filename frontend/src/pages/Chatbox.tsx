@@ -20,23 +20,54 @@ function Chatbox({ isOpen }: ChatBoxProps) {
     },
   ]);
 
-  const handleSend = () => {
-    if (!input.trim()) return;
+  const handleSend = async () => {
+  if (!input.trim()) return;
+
+  const userMessage = input;
+
+  setMessages((prev) => [
+    ...prev,
+    {
+      sender: "user",
+      text: userMessage,
+    },
+  ]);
+
+  setInput("");
+
+  try {
+    const response = await fetch(
+      "http://127.0.0.1:8000/chat",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          message: userMessage,
+        }),
+      }
+    );
+
+    const data = await response.json();
 
     setMessages((prev) => [
       ...prev,
       {
-        sender: "user",
-        text: input,
-      },
-      {
         sender: "bot",
-        text: "I am your AI Project Copilot.",
+        text: data.reply,
       },
     ]);
-
-    setInput("");
-  };
+  } catch (error) {
+    setMessages((prev) => [
+      ...prev,
+      {
+        sender: "bot",
+        text: "Server error.",
+      },
+    ]);
+  }
+};
 
   if (!isOpen) return null;
 

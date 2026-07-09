@@ -43,6 +43,9 @@ class User(BaseModel):
 class Login(BaseModel):
     email: str
     password: str
+    
+class ChatRequest(BaseModel):
+    message: str
 
 
 @app.get("/")
@@ -169,4 +172,25 @@ def get_profile(
     return {
         "message": "Protected route accessed",
         "username": username
+    }
+    
+@app.post("/chat")
+def chat(request: ChatRequest):
+    
+    user_message = request.message.lower()
+
+    if "hello" in user_message:
+        reply = "Hello! I am your AI Project Copilot."
+
+    elif "project" in user_message:
+        reply = "Your project is an AI Project Execution Copilot."
+
+    elif "deadline" in user_message:
+        reply = "Please check your assigned tasks and deadlines."
+
+    else:
+        reply = f"You said: {request.message}"
+
+    return {
+        "reply": reply
     }
