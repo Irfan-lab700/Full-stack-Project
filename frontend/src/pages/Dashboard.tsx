@@ -63,7 +63,12 @@ return (
   <>
     <h2>👋 Welcome {user.username}</h2>
     <p>Role: {user.role}</p>
-    <p>You are successfully logged in</p>
+
+    {user.role === "admin" ? (
+      <h3>🛡️ Admin Dashboard</h3>
+    ) : (
+      <h3>👤 User Dashboard</h3>
+    )}
   </>
 ) : (
   <p>Please wait ... fetching your session</p>
