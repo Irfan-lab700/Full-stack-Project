@@ -104,22 +104,22 @@ def create_access_token(data: dict):
     return encoded_jwt
 def verify_token(token: str):
     try:
-        print("TOKEN =", token)
-
         payload = jwt.decode(
             token,
             Secret_key,
             algorithms=[ALGORITHM]
         )
 
-        print("PAYLOAD =", payload)
-
         username = payload.get("sub")
+        role = payload.get("role")
 
         if username is None:
             return None
 
-        return username
+        return {
+            "username": username,
+            "role": role
+        }
 
     except JWTError as e:
         print("JWT ERROR =", e)
@@ -141,7 +141,8 @@ def login_user(user: Login):
 
     db.close()
     token = create_access_token(
-    {"sub": db_user.username}
+    {"sub": db_user.username,
+     "role": db_user.role}
 )
 
     return {
@@ -150,7 +151,8 @@ def login_user(user: Login):
     "access_token": token,
     "data": {
         "username": db_user.username,
-        "email": db_user.email
+        "email": db_user.email,
+        "role": db_user.role
     }
 }
 
@@ -161,9 +163,9 @@ def get_profile(
     token = credentials.credentials
     print("RAW TOKEN =", token)
 
-    username = verify_token(token)
+    user_data = verify_token(token)
 
-    if not username:
+    if not user_data:
         raise HTTPException(
             status_code=401,
             detail="Invalid token"
@@ -171,7 +173,8 @@ def get_profile(
 
     return {
         "message": "Protected route accessed",
-        "username": username
+        "username": user_data["username"],
+        "role": user_data["role"]
     }
     
 @app.post("/chat")

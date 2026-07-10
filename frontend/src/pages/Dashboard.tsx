@@ -6,6 +6,7 @@ import "./Dashboard.css";
 type User = {
 username: string;
 message?: string;
+role: string;
 };
 
 function Dashboard() {
@@ -59,13 +60,14 @@ return (
       <h1>Dashboard</h1>
 
       {user ? (
-        <>
-          <h2>👋 Welcome {user.username}</h2>
-          <p>You are successfully logged in</p>
-        </>
-      ) : (
-        <p>Please wait ... fetching your session</p>
-      )}
+  <>
+    <h2>👋 Welcome {user.username}</h2>
+    <p>Role: {user.role}</p>
+    <p>You are successfully logged in</p>
+  </>
+) : (
+  <p>Please wait ... fetching your session</p>
+)}
     </div>
   </div>
 
