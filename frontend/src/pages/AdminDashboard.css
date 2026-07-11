@@ -1,0 +1,17 @@
+.admin-container {
+  margin-top: 20px;
+}
+
+.admin-cards {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.admin-card {
+  padding: 20px;
+  border-radius: 12px;
+  background: white;
+  min-width: 220px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+}

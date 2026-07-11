@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import Navbar from "../pages/Navbar";
 import Chatbox from "../pages/Chatbox";
+import AdminDashboard from "../pages/AdminDashboard";
+import UserDashboard from "../pages/UserDashboard";
 import "./Dashboard.css";
 
 type User = {
@@ -59,19 +61,10 @@ return (
     <div className="dashboard-card">
       <h1>Dashboard</h1>
 
-      {user ? (
-  <>
-    <h2>👋 Welcome {user.username}</h2>
-    <p>Role: {user.role}</p>
-
-    {user.role === "admin" ? (
-      <h3>🛡️ Admin Dashboard</h3>
-    ) : (
-      <h3>👤 User Dashboard</h3>
-    )}
-  </>
+      {user?.role === "admin" ? (
+  <AdminDashboard />
 ) : (
-  <p>Please wait ... fetching your session</p>
+  <UserDashboard />
 )}
     </div>
   </div>
