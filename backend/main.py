@@ -13,6 +13,7 @@ from fastapi.security import HTTPAuthorizationCredentials
 from fastapi import Depends
 from database import Base, engine
 import models
+from fastapi import UploadFile, File
 
 Base.metadata.create_all(bind=engine)
 security = HTTPBearer()
@@ -26,6 +27,10 @@ ACCESS_TOKEN_EXPIRE_MINUTES = 30
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 app = FastAPI()
+UPLOAD_FOLDER = "uploads"
+
+if not os.path.exists(UPLOAD_FOLDER):
+    os.makedirs(UPLOAD_FOLDER)
 
 app.add_middleware(
     CORSMiddleware,
@@ -196,4 +201,21 @@ def chat(request: ChatRequest):
 
     return {
         "reply": reply
+    }
+    
+@app.post("/upload-document")
+async def upload_document(
+    file: UploadFile = File(...)
+):
+    file_path = os.path.join(
+        UPLOAD_FOLDER,
+        file.filename
+    )
+
+    with open(file_path, "wb") as buffer:
+        buffer.write(await file.read())
+
+    return {
+        "message": "File uploaded successfully",
+        "filename": file.filename
     }
