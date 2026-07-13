@@ -1,84 +1,135 @@
 import "./AdminDashboard.css";
 import { useState } from "react";
 
+
 function AdminDashboard() {
-    const [selectedFile, setSelectedFile] = useState<File | null>(null);
-    const [message, setMessage] = useState("");
-    const handleUpload = async () => {
-  if (!selectedFile) {
-    setMessage("Please select a file");
-    return;
-  }
+  const [selectedFile, setSelectedFile] =useState<File | null>(null);
+  const [subject, setSubject] =useState("");
 
-  const formData = new FormData();
+  const [message, setMessage] =useState("");
 
-  formData.append(
-    "file",
-    selectedFile
-  );
+  const handleUpload = async () => {
+    if (!selectedFile) {
+      setMessage("Please select a file");
+      return;
+    }
 
-  try {
-    const response = await fetch(
-      "http://127.0.0.1:8000/upload-document",
-      {
-        method: "POST",
-        body: formData,
-      }
+    if (!subject.trim()) {
+      setMessage("Please enter subject");
+      return;
+    }
+
+    const token =
+      localStorage.getItem("token");
+
+    if (!token) {
+      setMessage("User not authenticated");
+      return;
+    }
+
+    const formData = new FormData();
+
+    formData.append(
+      "subject",
+      subject
     );
 
-    const data = await response.json();
+    formData.append(
+      "file",
+      selectedFile
+    );
 
-    setMessage(data.message);
-  } catch {
-    setMessage("Upload failed");
-  }
-};
+    try {
+      const response = await fetch(
+        "http://127.0.0.1:8000/upload-document",
+        {
+          method: "POST",
+
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+
+          body: formData,
+        }
+      );
+
+      const data =
+        await response.json();
+
+      setMessage(data.message);
+
+      setSelectedFile(null);
+      setSubject("");
+    } catch {
+      setMessage("Upload failed");
+    }
+  };
+
   return (
     <div className="admin-container">
       <h2>🛡️ Admin Dashboard</h2>
 
       <div className="admin-cards">
+
         <div className="admin-card">
-  <h3>Upload Documents</h3>
+          <h3>Upload Documents</h3>
 
-  <input
-    type="file"
-    onChange={(e) => {
-      if (
-        e.target.files &&
-        e.target.files.length > 0
-      ) {
-        setSelectedFile(
-          e.target.files[0]
-        );
-      }
-    }}
-  />
+          <input
+            type="text"
+            placeholder="Enter Subject"
+            value={subject}
+            onChange={(e) =>
+              setSubject(e.target.value)
+            }
+          />
 
-  {selectedFile && (
-    <p>
-      Selected:
-      {" "}
-      {selectedFile.name}
-    </p>
-  )}
+          <br />
+          <br />
 
-  <button onClick={handleUpload}>
-    Upload
-  </button>
+          <input
+            type="file"
+            onChange={(e) => {
+              if (
+                e.target.files &&
+                e.target.files.length > 0
+              ) {
+                setSelectedFile(
+                  e.target.files[0]
+                );
+              }
+            }}
+          />
 
-  <p>{message}</p>
-</div>
+          {selectedFile && (
+            <p>
+              Selected:{" "}
+              {selectedFile.name}
+            </p>
+          )}
+
+          <button
+            onClick={handleUpload}
+          >
+            Upload
+          </button>
+
+          <p>{message}</p>
+        </div>
 
         <div className="admin-card">
           <h3>Manage Users</h3>
-          <p>Control user access and roles.</p>
+          <p>
+            Control user access and roles.
+          </p>
         </div>
 
         <div className="admin-card">
           <h3>Analytics</h3>
-          <p>View system insights.</p>
+          <p>
+            View system insights.
+          </p>
         </div>
+
       </div>
     </div>
   );

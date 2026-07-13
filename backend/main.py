@@ -8,12 +8,13 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from database import SessionLocal
 from models import User as DBUser
+from models import Document 
 from fastapi.security import HTTPBearer
 from fastapi.security import HTTPAuthorizationCredentials
 from fastapi import Depends
 from database import Base, engine
 import models
-from fastapi import UploadFile, File
+from fastapi import UploadFile, File, Form
 
 Base.metadata.create_all(bind=engine)
 security = HTTPBearer()
@@ -205,8 +206,26 @@ def chat(request: ChatRequest):
     
 @app.post("/upload-document")
 async def upload_document(
-    file: UploadFile = File(...)
+    subject: str = Form(...),
+    file: UploadFile = File(...),
+    credentials: HTTPAuthorizationCredentials = Depends(security)
 ):
+    db = SessionLocal()
+
+    token = credentials.credentials
+
+    user_data = verify_token(token)
+
+    if not user_data:
+        raise HTTPException(
+            status_code=401,
+            detail="Invalid token"
+        )
+
+    db_user = db.query(DBUser).filter(
+        DBUser.username == user_data["username"]
+    ).first()
+
     file_path = os.path.join(
         UPLOAD_FOLDER,
         file.filename
@@ -215,7 +234,25 @@ async def upload_document(
     with open(file_path, "wb") as buffer:
         buffer.write(await file.read())
 
-    return {
+    new_document = Document(
+        filename=file.filename,
+        filepath=file_path,
+        subject=subject,
+        uploaded_by=db_user.id
+    )
+
+    db.add(new_document)
+    db.commit()
+    db.refresh(new_document)
+
+    response = {
         "message": "File uploaded successfully",
-        "filename": file.filename
+        "document_id": new_document.id,
+        "filename": new_document.filename,
+        "subject": new_document.subject,
+        "uploaded_by": db_user.username
     }
+
+    db.close()
+
+    return response
