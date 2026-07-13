@@ -15,6 +15,7 @@ from fastapi import Depends
 from database import Base, engine
 import models
 from fastapi import UploadFile, File, Form
+import uuid
 
 Base.metadata.create_all(bind=engine)
 security = HTTPBearer()
@@ -212,47 +213,146 @@ async def upload_document(
 ):
     db = SessionLocal()
 
-    token = credentials.credentials
+    try:
 
-    user_data = verify_token(token)
+        token = credentials.credentials
 
-    if not user_data:
-        raise HTTPException(
-            status_code=401,
-            detail="Invalid token"
+        user_data = verify_token(token)
+
+        if not user_data:
+            raise HTTPException(
+                status_code=401,
+                detail="Invalid token"
+            )
+
+        db_user = db.query(DBUser).filter(
+            DBUser.username == user_data["username"]
+        ).first()
+
+        if not db_user:
+            raise HTTPException(
+                status_code=404,
+                detail="User not found"
+            )
+
+        # Only PDF allowed
+
+        if not file.filename.lower().endswith(".pdf"):
+            raise HTTPException(
+                status_code=400,
+                detail="Only PDF files are allowed"
+            )
+
+        # Unique filename
+
+        unique_filename = (
+            str(uuid.uuid4())
+            + "_"
+            + file.filename
         )
 
-    db_user = db.query(DBUser).filter(
-        DBUser.username == user_data["username"]
-    ).first()
+        file_path = os.path.join(
+            UPLOAD_FOLDER,
+            unique_filename
+        )
 
-    file_path = os.path.join(
-        UPLOAD_FOLDER,
-        file.filename
-    )
+        with open(file_path, "wb") as buffer:
+            buffer.write(await file.read())
 
-    with open(file_path, "wb") as buffer:
-        buffer.write(await file.read())
+        new_document = Document(
+            filename=file.filename,
+            filepath=file_path,
+            subject=subject,
+            uploaded_by=db_user.id
+        )
 
-    new_document = Document(
-        filename=file.filename,
-        filepath=file_path,
-        subject=subject,
-        uploaded_by=db_user.id
-    )
+        db.add(new_document)
+        db.commit()
+        db.refresh(new_document)
 
-    db.add(new_document)
-    db.commit()
-    db.refresh(new_document)
+        return {
+            "message": "File uploaded successfully",
+            "document_id": new_document.id,
+            "filename": new_document.filename,
+            "subject": new_document.subject,
+            "uploaded_by": db_user.username,
+            "role": db_user.role
+        }
 
-    response = {
-        "message": "File uploaded successfully",
-        "document_id": new_document.id,
-        "filename": new_document.filename,
-        "subject": new_document.subject,
-        "uploaded_by": db_user.username
-    }
+    finally:
+        db.close()
+        
+@app.delete("/documents/{document_id}")
+def delete_document(
+    document_id: int,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    db = SessionLocal()
 
-    db.close()
+    try:
+        token = credentials.credentials
 
-    return response
+        user_data = verify_token(token)
+
+        if not user_data:
+            raise HTTPException(
+                status_code=401,
+                detail="Invalid token"
+            )
+
+        document = db.query(Document).filter(
+            Document.id == document_id
+        ).first()
+
+        if not document:
+            raise HTTPException(
+                status_code=404,
+                detail="Document not found"
+            )
+
+        # file delete from uploads folder
+        if os.path.exists(document.filepath):
+            os.remove(document.filepath)
+
+        db.delete(document)
+        db.commit()
+
+        return {
+            "message": "Document deleted successfully"
+        }
+
+    finally:
+        db.close()
+        
+@app.get("/documents")
+def get_documents(
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    db = SessionLocal()
+
+    try:
+        token = credentials.credentials
+
+        user_data = verify_token(token)
+
+        if not user_data:
+            raise HTTPException(
+                status_code=401,
+                detail="Invalid token"
+            )
+
+        documents = db.query(Document).all()
+
+        result = []
+
+        for doc in documents:
+            result.append({
+                "id": doc.id,
+                "filename": doc.filename,
+                "subject": doc.subject
+            })
+
+        return result
+
+    finally:
+        db.close()
