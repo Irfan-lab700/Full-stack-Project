@@ -1,7 +1,7 @@
 from sqlalchemy import Column, Integer, String, ForeignKey
 from sqlalchemy.orm import relationship
 from database import Base
-
+from sqlalchemy import Text
 
 class User(Base):
     __tablename__ = "users"
@@ -31,6 +31,7 @@ class Document(Base):
     filepath = Column(String)
 
     subject = Column(String)
+    extracted_text = Column(Text)
 
     uploaded_by = Column(
         Integer,

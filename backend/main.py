@@ -16,6 +16,7 @@ from database import Base, engine
 import models
 from fastapi import UploadFile, File, Form
 import uuid
+import pdfplumber
 
 Base.metadata.create_all(bind=engine)
 security = HTTPBearer()
@@ -258,13 +259,24 @@ async def upload_document(
 
         with open(file_path, "wb") as buffer:
             buffer.write(await file.read())
+        text = ""
+
+        with pdfplumber.open(file_path) as pdf:
+
+            for page in pdf.pages:
+
+             page_text = page.extract_text()
+
+             if page_text:
+               text += page_text + "\n"
 
         new_document = Document(
-            filename=file.filename,
-            filepath=file_path,
-            subject=subject,
-            uploaded_by=db_user.id
-        )
+        filename=file.filename,
+        filepath=file_path,
+        subject=subject,
+        extracted_text=text,
+        uploaded_by=db_user.id
+)
 
         db.add(new_document)
         db.commit()
@@ -356,3 +368,24 @@ def get_documents(
 
     finally:
         db.close()
+        
+@app.get("/document/{document_id}")
+def get_document(document_id: int):
+
+    db = SessionLocal()
+
+    document = db.query(Document).filter(
+        Document.id == document_id
+    ).first()
+
+    if not document:
+        raise HTTPException(
+            status_code=404,
+            detail="Document not found"
+        )
+
+    return {
+        "filename": document.filename,
+        "subject": document.subject,
+        "text": document.extracted_text[:3500]
+    }
