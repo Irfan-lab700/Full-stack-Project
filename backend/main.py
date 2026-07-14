@@ -8,7 +8,6 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from database import SessionLocal
 from models import User as DBUser
-from models import Document 
 from fastapi.security import HTTPBearer
 from fastapi.security import HTTPAuthorizationCredentials
 from fastapi import Depends
@@ -17,6 +16,7 @@ import models
 from fastapi import UploadFile, File, Form
 import uuid
 import pdfplumber
+from models import DocumentChunk,Document
 
 Base.metadata.create_all(bind=engine)
 security = HTTPBearer()
@@ -205,7 +205,23 @@ def chat(request: ChatRequest):
     return {
         "reply": reply
     }
-    
+
+def create_chunks(
+    text: str,
+    chunk_size: int = 1000
+):
+    chunks = []
+
+    for i in range(
+        0,
+        len(text),
+        chunk_size
+    ):
+        chunks.append(
+            text[i:i + chunk_size]
+        )
+
+    return chunks
 @app.post("/upload-document")
 async def upload_document(
     subject: str = Form(...),
@@ -281,6 +297,20 @@ async def upload_document(
         db.add(new_document)
         db.commit()
         db.refresh(new_document)
+        
+        chunks = create_chunks(text)
+
+        for index, chunk in enumerate(chunks):
+
+          db_chunk = DocumentChunk(
+           document_id=new_document.id,
+           chunk_text=chunk,
+           chunk_index=index
+        )
+
+          db.add(db_chunk)
+
+        db.commit()
 
         return {
             "message": "File uploaded successfully",
@@ -389,3 +419,19 @@ def get_document(document_id: int):
         "subject": document.subject,
         "text": document.extracted_text[:3500]
     }
+    
+@app.get("/chunks/{document_id}")
+def get_chunks(document_id: int):
+
+    db = SessionLocal()
+
+    chunks = db.query(
+        DocumentChunk
+    ).filter(
+        DocumentChunk.document_id
+        == document_id
+    ).all()
+
+    db.close()
+
+    return chunks

@@ -42,3 +42,21 @@ class Document(Base):
         "User",
         back_populates="documents"
     )
+    
+class DocumentChunk(Base):
+    __tablename__ = "document_chunks"
+
+    id = Column(
+        Integer,
+        primary_key=True,
+        index=True
+    )
+
+    document_id = Column(
+        Integer,
+        ForeignKey("documents.id")
+    )
+
+    chunk_text = Column(Text)
+
+    chunk_index = Column(Integer)
