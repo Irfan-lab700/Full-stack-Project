@@ -19,6 +19,10 @@ import pdfplumber
 from models import DocumentChunk,Document
 from sentence_transformers import SentenceTransformer
 import chromadb
+from transformers import (
+    AutoTokenizer,
+    AutoModelForSeq2SeqLM
+)
 
 Base.metadata.create_all(bind=engine)
 security = HTTPBearer()
@@ -45,6 +49,29 @@ chroma_client = chromadb.PersistentClient(
 collection = chroma_client.get_or_create_collection(
     name="documents"
 )
+
+tokenizer = AutoTokenizer.from_pretrained(
+    "google/flan-t5-small"
+)
+
+model = AutoModelForSeq2SeqLM.from_pretrained(
+    "google/flan-t5-small"
+)
+
+def retrieve_chunks(query):
+
+    query_embedding = embedding_model.encode(
+        query
+    ).tolist()
+
+    results = collection.query(
+        query_embeddings=[
+            query_embedding
+        ],
+        n_results=3
+    )
+
+    return results
 
 if not os.path.exists(UPLOAD_FOLDER):
     os.makedirs(UPLOAD_FOLDER)
@@ -472,18 +499,46 @@ def get_chunks(document_id: int):
 
     return chunks
 
-@app.get("/search")
-def search(query: str):
+@app.get("/ask")
+def ask(query: str):
 
-    query_embedding = embedding_model.encode(
-        query
-    ).tolist()
+    results = retrieve_chunks(query)
 
-    results = collection.query(
-        query_embeddings=[
-            query_embedding
-        ],
-        n_results=3
+    context = "\n\n".join(
+        results["documents"][0][0]
     )
 
-    return results
+    prompt = f"""
+Based only on the context below, answer briefly..
+
+Context:
+{context}
+
+Question:
+{query}
+
+Answer:
+"""
+
+    inputs = tokenizer(
+        prompt,
+        return_tensors="pt",
+        truncation=True,
+        max_length=512
+    )
+
+    outputs = model.generate(
+        **inputs,
+        max_new_tokens=50,
+        temperature = 0.1
+    )
+
+    answer = tokenizer.decode(
+        outputs[0],
+        skip_special_tokens=True
+    )
+
+    return {
+        "question": query,
+        "answer": answer
+    }
