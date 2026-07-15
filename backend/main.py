@@ -17,6 +17,8 @@ from fastapi import UploadFile, File, Form
 import uuid
 import pdfplumber
 from models import DocumentChunk,Document
+from sentence_transformers import SentenceTransformer
+import chromadb
 
 Base.metadata.create_all(bind=engine)
 security = HTTPBearer()
@@ -31,6 +33,18 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 app = FastAPI()
 UPLOAD_FOLDER = "uploads"
+
+embedding_model = SentenceTransformer(
+    "all-MiniLM-L6-v2"
+)
+
+chroma_client = chromadb.PersistentClient(
+    path="./chroma_db"
+)
+
+collection = chroma_client.get_or_create_collection(
+    name="documents"
+)
 
 if not os.path.exists(UPLOAD_FOLDER):
     os.makedirs(UPLOAD_FOLDER)
@@ -302,13 +316,35 @@ async def upload_document(
 
         for index, chunk in enumerate(chunks):
 
-          db_chunk = DocumentChunk(
-           document_id=new_document.id,
-           chunk_text=chunk,
-           chunk_index=index
-        )
+            db_chunk = DocumentChunk(
+                document_id=new_document.id,
+                chunk_index=index,
+                chunk_text=chunk
+            )
+            db.add(db_chunk)
+            embedding = embedding_model.encode(
+            chunk
+            ).tolist()
 
-          db.add(db_chunk)
+
+            collection.add(
+              ids=[
+               f"{new_document.id}_{index}"
+               ],
+              documents=[
+               chunk
+               ],
+              embeddings=[
+               embedding
+              ],
+              metadatas=[
+            {
+                "document_id": new_document.id,
+                "subject": subject,
+                "uploaded_by": db_user.username
+            }
+        ]
+    )
 
         db.commit()
 
@@ -435,3 +471,19 @@ def get_chunks(document_id: int):
     db.close()
 
     return chunks
+
+@app.get("/search")
+def search(query: str):
+
+    query_embedding = embedding_model.encode(
+        query
+    ).tolist()
+
+    results = collection.query(
+        query_embeddings=[
+            query_embedding
+        ],
+        n_results=3
+    )
+
+    return results
