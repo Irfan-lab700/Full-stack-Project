@@ -49,27 +49,20 @@ function Chatbox({ isOpen }: ChatBoxProps) {
       setLoading(true);
 
       const response = await fetch(
-        "http://127.0.0.1:8000/chat",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            message: userMessage,
-          }),
-        }
-      );
+  `http://127.0.0.1:8000/ask?query=${encodeURIComponent(
+    userMessage
+  )}`
+);
 
       const data = await response.json();
 
-      setMessages((prev) => [
-        ...prev,
-        {
-          sender: "bot",
-          text: data.reply,
-        },
-      ]);
+setMessages((prev) => [
+  ...prev,
+  {
+    sender: "bot",
+    text: data.documents[0],
+  },
+]);
 
       setLoading(false);
     } catch (error) {

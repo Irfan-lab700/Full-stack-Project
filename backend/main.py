@@ -386,7 +386,6 @@ async def upload_document(
 
     finally:
         db.close()
-        
 @app.delete("/documents/{document_id}")
 def delete_document(
     document_id: int,
@@ -415,10 +414,21 @@ def delete_document(
                 detail="Document not found"
             )
 
-        # file delete from uploads folder
+        # Delete all chunks first
+        chunks = db.query(DocumentChunk).filter(
+            DocumentChunk.document_id == document.id
+        ).all()
+
+        for chunk in chunks:
+            db.delete(chunk)
+
+        db.commit()
+
+        # Delete file from uploads folder
         if os.path.exists(document.filepath):
             os.remove(document.filepath)
 
+        # Delete document
         db.delete(document)
         db.commit()
 
@@ -498,47 +508,13 @@ def get_chunks(document_id: int):
     db.close()
 
     return chunks
-
 @app.get("/ask")
 def ask(query: str):
 
     results = retrieve_chunks(query)
 
-    context = "\n\n".join(
-        results["documents"][0][0]
-    )
-
-    prompt = f"""
-Based only on the context below, answer briefly..
-
-Context:
-{context}
-
-Question:
-{query}
-
-Answer:
-"""
-
-    inputs = tokenizer(
-        prompt,
-        return_tensors="pt",
-        truncation=True,
-        max_length=512
-    )
-
-    outputs = model.generate(
-        **inputs,
-        max_new_tokens=50,
-        temperature = 0.1
-    )
-
-    answer = tokenizer.decode(
-        outputs[0],
-        skip_special_tokens=True
-    )
-
     return {
         "question": query,
-        "answer": answer
+        "documents": results["documents"][0],
+        "distances": results["distances"][0]
     }
