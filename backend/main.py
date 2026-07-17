@@ -16,7 +16,7 @@ import models
 from fastapi import UploadFile, File, Form
 import uuid
 import pdfplumber
-from models import DocumentChunk,Document
+from models import DocumentChunk,Document, Assignment
 from sentence_transformers import SentenceTransformer
 import chromadb
 from transformers import (
@@ -95,6 +95,12 @@ class Login(BaseModel):
     
 class ChatRequest(BaseModel):
     message: str
+    
+class AssignmentCreate(BaseModel):
+    title: str
+    description: str
+    subject: str
+    deadline: str
 
 
 @app.get("/")
@@ -518,3 +524,82 @@ def ask(query: str):
         "documents": results["documents"][0],
         "distances": results["distances"][0]
     }
+    
+@app.post("/assignments")
+def create_assignment(
+    assignment: AssignmentCreate,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    db = SessionLocal()
+
+    try:
+        token = credentials.credentials
+
+        user_data = verify_token(token)
+
+        if not user_data:
+            raise HTTPException(
+                status_code=401,
+                detail="Invalid token"
+            )
+
+        username = user_data["username"]
+
+        user = db.query(DBUser).filter(
+            DBUser.username == username
+        ).first()
+
+        if not user:
+            raise HTTPException(
+                status_code=404,
+                detail="User not found"
+            )
+
+        new_assignment = Assignment(
+            title=assignment.title,
+            description=assignment.description,
+            subject=assignment.subject,
+            deadline=assignment.deadline,
+            created_by=user.id
+        )
+
+        db.add(new_assignment)
+        db.commit()
+        db.refresh(new_assignment)
+
+        return {
+            "message": "Assignment created successfully",
+            "assignment_id": new_assignment.id
+        }
+
+    finally:
+        db.close()
+        
+@app.get("/assignments")
+def get_assignments():
+
+    db = SessionLocal()
+
+    try:
+
+        assignments = db.query(
+            Assignment
+        ).all()
+
+        result = []
+
+        for assignment in assignments:
+
+            result.append({
+                "id": assignment.id,
+                "title": assignment.title,
+                "description": assignment.description,
+                "subject": assignment.subject,
+                "deadline": assignment.deadline,
+                "created_by": assignment.created_by
+            })
+
+        return result
+
+    finally:
+        db.close()

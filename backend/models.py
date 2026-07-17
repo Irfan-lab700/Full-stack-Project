@@ -60,3 +60,26 @@ class DocumentChunk(Base):
     chunk_text = Column(Text)
 
     chunk_index = Column(Integer)
+    
+    
+class Assignment(Base):
+    __tablename__ = "assignments"
+
+    id = Column(
+        Integer,
+        primary_key=True,
+        index=True
+    )
+
+    title = Column(String)
+
+    description = Column(Text)
+
+    subject = Column(String)
+
+    deadline = Column(String)
+
+    created_by = Column(
+        Integer,
+        ForeignKey("users.id")
+    )
