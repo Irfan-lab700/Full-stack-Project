@@ -1,4 +1,5 @@
 import "./UserDashboard.css";
+import AssignmentList from "./Assignmentlist";
 
 function UserDashboard() {
   return (
@@ -19,6 +20,10 @@ function UserDashboard() {
         <div className="user-card">
           <h3>AI Assistant</h3>
           <p>Ask questions from knowledge base.</p>
+        </div>
+
+        <div className="user-card">
+          <AssignmentList />
         </div>
       </div>
     </div>

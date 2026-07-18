@@ -1,4 +1,5 @@
 import "./AdminDashboard.css";
+import AssignmentList from "./Assignmentlist";
 import { useState, useEffect } from "react";
 
 type DocumentType = {
@@ -222,14 +223,19 @@ return ( <div className="admin-container"> <h2>🛡️ Admin Dashboard</h2>
     </div>
 
     <div className="admin-card">
-      <h3>Analytics</h3>
-      <p>
-        View system insights.
-      </p>
-    </div>
+  <h3>Analytics</h3>
+  <p>
+    View system insights.
+  </p>
+</div>
+
+<div className="admin-card">
+  <AssignmentList />
+</div>
 
   </div>
 </div>
+
 
 
 );
