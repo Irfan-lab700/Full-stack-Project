@@ -83,3 +83,26 @@ class Assignment(Base):
         Integer,
         ForeignKey("users.id")
     )
+class Submission(Base):
+    __tablename__ = "submissions"
+
+    id = Column(
+        Integer,
+        primary_key=True,
+        index=True
+    )
+
+    assignment_id = Column(
+        Integer,
+        ForeignKey("assignments.id")
+    )
+
+    student_id = Column(
+        Integer,
+        ForeignKey("users.id")
+    )
+
+    document_id = Column(
+        Integer,
+        ForeignKey("documents.id")
+    )

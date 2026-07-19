@@ -16,7 +16,7 @@ import models
 from fastapi import UploadFile, File, Form
 import uuid
 import pdfplumber
-from models import DocumentChunk,Document, Assignment
+from models import DocumentChunk,Document, Assignment,Submission
 from sentence_transformers import SentenceTransformer
 import chromadb
 from transformers import (
@@ -101,6 +101,10 @@ class AssignmentCreate(BaseModel):
     description: str
     subject: str
     deadline: str
+    
+class SubmissionCreate(BaseModel):
+    assignment_id: int
+    document_id: int
 
 
 @app.get("/")
@@ -597,6 +601,81 @@ def get_assignments():
                 "subject": assignment.subject,
                 "deadline": assignment.deadline,
                 "created_by": assignment.created_by
+            })
+
+        return result
+
+    finally:
+        db.close()
+        
+@app.post("/submissions")
+def create_submission(
+    submission: SubmissionCreate,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    db = SessionLocal()
+
+    try:
+        token = credentials.credentials
+
+        user_data = verify_token(token)
+
+        if not user_data:
+            raise HTTPException(
+                status_code=401,
+                detail="Invalid token"
+            )
+
+        username = user_data["username"]
+
+        user = db.query(DBUser).filter(
+            DBUser.username == username
+        ).first()
+
+        if not user:
+            raise HTTPException(
+                status_code=404,
+                detail="User not found"
+            )
+
+        new_submission = Submission(
+            assignment_id=submission.assignment_id,
+            document_id=submission.document_id,
+            student_id=user.id
+        )
+
+        db.add(new_submission)
+        db.commit()
+        db.refresh(new_submission)
+
+        return {
+            "message": "Submission successful",
+            "submission_id": new_submission.id
+        }
+
+    finally:
+        db.close()
+        
+@app.get("/submissions")
+def get_submissions():
+
+    db = SessionLocal()
+
+    try:
+
+        submissions = db.query(
+            Submission
+        ).all()
+
+        result = []
+
+        for submission in submissions:
+
+            result.append({
+                "id": submission.id,
+                "assignment_id": submission.assignment_id,
+                "student_id": submission.student_id,
+                "document_id": submission.document_id
             })
 
         return result
