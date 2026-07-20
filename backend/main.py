@@ -682,3 +682,44 @@ def get_submissions():
 
     finally:
         db.close()
+        
+@app.get("/my-documents")
+def get_my_documents(
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    db = SessionLocal()
+
+    try:
+        token = credentials.credentials
+
+        user_data = verify_token(token)
+
+        if not user_data:
+            raise HTTPException(
+                status_code=401,
+                detail="Invalid token"
+            )
+
+        username = user_data["username"]
+
+        user = db.query(DBUser).filter(
+            DBUser.username == username
+        ).first()
+
+        documents = db.query(Document).filter(
+            Document.uploaded_by == user.id
+        ).all()
+
+        result = []
+
+        for doc in documents:
+            result.append({
+                "id": doc.id,
+                "filename": doc.filename,
+                "subject": doc.subject
+            })
+
+        return result
+
+    finally:
+        db.close()

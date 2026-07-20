@@ -1,5 +1,7 @@
 import "./UserDashboard.css";
 import AssignmentList from "./Assignmentlist";
+import StudentSubmission from "./StudentSubmission";
+import StudentUpload from "./StudentUpload";
 
 function UserDashboard() {
   return (
@@ -24,6 +26,12 @@ function UserDashboard() {
 
         <div className="user-card">
           <AssignmentList />
+        </div>
+        <div className="user-card">
+          <StudentSubmission />
+        </div>
+        <div className="user-card">
+          <StudentUpload />
         </div>
       </div>
     </div>
