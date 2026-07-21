@@ -12,6 +12,7 @@ function UserDashboard() {
         <div className="user-card">
           <h3>My Tasks</h3>
           <p>Track assigned work.</p>
+          <AssignmentList />
         </div>
 
         <div className="user-card">
@@ -24,9 +25,7 @@ function UserDashboard() {
           <p>Ask questions from knowledge base.</p>
         </div>
 
-        <div className="user-card">
-          <AssignmentList />
-        </div>
+        
         <div className="user-card">
           <StudentSubmission />
         </div>

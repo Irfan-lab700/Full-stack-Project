@@ -2,8 +2,9 @@ import { useEffect, useState } from "react";
 
 type Submission = {
   id: number;
-  assignment_id: number;
-  student_id: number;
+  assignment: string;
+  student: string;
+  document: string;
   document_id: number;
 };
 
@@ -23,17 +24,10 @@ function SubmissionList() {
 
       {submissions.map((submission) => (
         <div key={submission.id}>
-          <p>
-            <b>Assignment:</b> {submission.assignment_id}
-          </p>
-
-          <p>
-            <b>Student:</b> {submission.student_id}
-          </p>
-
-          <p>
-            <b>Document:</b> {submission.document_id}
-          </p>
+          <p>Assignment: {submission.assignment}</p>
+<p>Student: {submission.student}</p>
+<p>Document: {submission.document}</p>
+<p>Document ID: {submission.document_id}</p>
 
           <hr />
         </div>

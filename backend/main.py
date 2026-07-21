@@ -528,15 +528,16 @@ def ask(query: str):
         "documents": results["documents"][0],
         "distances": results["distances"][0]
     }
-    
 @app.post("/assignments")
 def create_assignment(
     assignment: AssignmentCreate,
     credentials: HTTPAuthorizationCredentials = Depends(security)
 ):
+
     db = SessionLocal()
 
     try:
+
         token = credentials.credentials
 
         user_data = verify_token(token)
@@ -547,17 +548,29 @@ def create_assignment(
                 detail="Invalid token"
             )
 
+
+        # Role Authorization
+        if user_data["role"] != "admin":
+            raise HTTPException(
+                status_code=403,
+                detail="Only admin can create assignments"
+            )
+
+
         username = user_data["username"]
+
 
         user = db.query(DBUser).filter(
             DBUser.username == username
         ).first()
+
 
         if not user:
             raise HTTPException(
                 status_code=404,
                 detail="User not found"
             )
+
 
         new_assignment = Assignment(
             title=assignment.title,
@@ -567,18 +580,21 @@ def create_assignment(
             created_by=user.id
         )
 
+
         db.add(new_assignment)
         db.commit()
         db.refresh(new_assignment)
+
 
         return {
             "message": "Assignment created successfully",
             "assignment_id": new_assignment.id
         }
 
+
     finally:
         db.close()
-        
+
 @app.get("/assignments")
 def get_assignments():
 
@@ -590,23 +606,35 @@ def get_assignments():
             Assignment
         ).all()
 
+
         result = []
+
 
         for assignment in assignments:
 
             result.append({
+
                 "id": assignment.id,
+
                 "title": assignment.title,
+
                 "description": assignment.description,
+
                 "subject": assignment.subject,
+
                 "deadline": assignment.deadline,
+
                 "created_by": assignment.created_by
+
             })
+
 
         return result
 
+
     finally:
         db.close()
+        
         
 @app.post("/submissions")
 def create_submission(
@@ -671,11 +699,43 @@ def get_submissions():
 
         for submission in submissions:
 
+            assignment = db.query(
+                Assignment
+            ).filter(
+                Assignment.id ==
+                submission.assignment_id
+            ).first()
+
+            student = db.query(
+                DBUser
+            ).filter(
+                DBUser.id ==
+                submission.student_id
+            ).first()
+
+            document = db.query(
+                Document
+            ).filter(
+                Document.id ==
+                submission.document_id
+            ).first()
+
             result.append({
                 "id": submission.id,
-                "assignment_id": submission.assignment_id,
-                "student_id": submission.student_id,
-                "document_id": submission.document_id
+
+                "assignment":
+                assignment.title
+                if assignment else "N/A",
+
+                "student":
+                student.username
+                if student else "N/A",
+
+                "document":
+                document.filename
+                if document else "N/A",
+                "document_id": document.id
+                if document.id else "N/A"
             })
 
         return result
