@@ -1,0 +1,237 @@
+.landing-container {
+  min-height: 100vh;
+  background: #f8fafc;
+  color: #0f172a;
+}
+
+
+/* Navbar */
+
+.navbar {
+
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  padding: 25px 70px;
+
+}
+
+
+.logo {
+
+  font-size: 28px;
+  font-weight: 700;
+  color: #2563eb;
+
+}
+
+
+.nav-buttons button {
+
+  padding: 10px 22px;
+  border-radius: 8px;
+  border: none;
+
+  margin-left: 15px;
+
+  cursor: pointer;
+
+  font-size: 15px;
+
+}
+
+
+.login-btn {
+
+  background: transparent;
+  border: 1px solid #2563eb !important;
+  color: #2563eb;
+
+}
+
+
+.signup-btn,
+.primary-btn {
+
+  background: #2563eb;
+  color:white;
+
+}
+
+
+
+/* Hero */
+
+
+.hero {
+
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+
+  padding:80px 100px;
+
+}
+
+
+.hero-content {
+
+  width:50%;
+
+}
+
+
+.hero-content h1 {
+
+  font-size:48px;
+  line-height:1.2;
+
+}
+
+
+.hero-content span {
+
+  color:#2563eb;
+
+}
+
+
+.hero-content p {
+
+  margin-top:25px;
+
+  font-size:18px;
+
+  color:#475569;
+
+  line-height:1.6;
+
+}
+
+
+
+.hero-buttons {
+
+  margin-top:35px;
+
+}
+
+
+.hero-buttons button {
+
+  padding:14px 28px;
+
+  border-radius:10px;
+
+  border:none;
+
+  cursor:pointer;
+
+  margin-right:15px;
+
+  font-size:16px;
+
+}
+
+
+
+.secondary-btn {
+
+  background:white;
+
+  color:#2563eb;
+
+  border:1px solid #2563eb !important;
+
+}
+
+
+
+/* Right card */
+
+
+.hero-image {
+
+  width:40%;
+
+}
+
+
+.dashboard-card {
+
+  background:white;
+
+  padding:40px;
+
+  border-radius:20px;
+
+  box-shadow:0 15px 40px rgba(0,0,0,0.1);
+
+}
+
+
+
+.dashboard-card h3 {
+
+  font-size:25px;
+
+}
+
+
+.dashboard-card p {
+
+  color:#64748b;
+
+  line-height:1.6;
+
+}
+
+
+
+/* Features */
+
+
+.features {
+
+  padding:50px 100px;
+
+  text-align:center;
+
+}
+
+
+.feature-grid {
+
+  display:flex;
+
+  gap:30px;
+
+  margin-top:40px;
+
+}
+
+
+
+.feature-card {
+
+  background:white;
+
+  padding:30px;
+
+  border-radius:15px;
+
+  flex:1;
+
+  box-shadow:0 10px 25px rgba(0,0,0,0.08);
+
+}
+
+
+.feature-card p {
+
+  color:#64748b;
+
+  line-height:1.5;
+
+}

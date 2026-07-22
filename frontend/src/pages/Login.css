@@ -9,7 +9,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  background-color:#CBD5E1;
+  background-color:#d3f3f8;
   padding: 20px;
 }
 
@@ -23,12 +23,12 @@
 
 .login-form h2 {
   margin-bottom: 25px;
-  color: #CBD5E1;
+  color: #d3f3f8;
   font-size: 2rem;
 }
 
 .login-form p{
-  color: #CBD5E1;
+  color: #d3f3f8;
   text-align: center;
 }
 
@@ -46,7 +46,7 @@
   font-size: 1rem;
   outline: none;
   transition: 0.3s;
-  color: #CBD5E1;
+  color: #d3f3f8;
 }
 
 .login-inputs input:focus {
@@ -58,7 +58,7 @@
   border: none;
   border-radius: 8px;
   background-color: #456882;
-  color: #CBD5E1;
+  color: #d3f3f8;
   font-size: 1rem;
   cursor: pointer;
   transition: 0.3s;

@@ -1,17 +1,27 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Register from "./pages/Register"
-import Login from "./pages/Login"
-import Dashboard from "./pages/Dashboard"
-import ProtectedRoute from "./pages/ProtectedRoute"
-function App() {
- 
+import Register from "./pages/Register";
+import Login from "./pages/Login";
+import Dashboard from "./pages/Dashboard";
+import Tasks from "./pages/Tasks";
+import ProtectedRoute from "./pages/ProtectedRoute";
+import Landing from "./pages/Landing";
 
+function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<Register />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
+        <Route 
+          path="/" 
+          element={<Landing />} 
+        />
+        <Route 
+          path="/login" 
+          element={<Login />} 
+        />
+        <Route 
+          path="/register" 
+          element={<Register />} 
+        />
         <Route
           path="/dashboard"
           element={
@@ -19,9 +29,19 @@ function App() {
               <Dashboard />
             </ProtectedRoute>
           }
-          />
+        />
+        <Route
+          path="/tasks"
+          element={
+            <ProtectedRoute>
+              <Tasks />
+            </ProtectedRoute>
+          }
+        />
       </Routes>
     </BrowserRouter>
+
   )
 }
-export default App
+
+export default App;
