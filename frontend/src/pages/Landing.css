@@ -1,18 +1,14 @@
 .landing-container {
   min-height: 100vh;
-  background: #f8fafc;
-  color: #0f172a;
+  background: #d3f3f8;
+  color: #1B3C53;
 }
-
-
-/* Navbar */
 
 .navbar {
 
   display: flex;
   justify-content: space-between;
   align-items: center;
-
   padding: 25px 70px;
 
 }
@@ -22,7 +18,7 @@
 
   font-size: 28px;
   font-weight: 700;
-  color: #2563eb;
+  color: #d3f3f8;
 
 }
 
@@ -45,46 +41,54 @@
 .login-btn {
 
   background: transparent;
-  border: 1px solid #2563eb !important;
-  color: #2563eb;
+  border: 1px solid #d3f3f8 !important;
+  color: #d3f3f8;
 
+}
+.login-btn:hover{
+  background: #d3f3f8;
+  color: #1B3C53;
+  transition: all 0.3s ease-in-out;
 }
 
 
 .signup-btn,
 .primary-btn {
 
-  background: #2563eb;
-  color:white;
+  background: #d3f3f8;
+  color: #1B3C53;
 
 }
-
-
-
-/* Hero */
+.signup-btn:hover,
+.primary-btn:hover{
+  background: #1B3C53;
+  color: #d3f3f8;
+  transition: all 0.3s ease-in-out;
+}
 
 
 .hero {
 
   display:flex;
-  justify-content:space-between;
+  justify-content:center;
   align-items:center;
 
-  padding:80px 100px;
+  padding:80px 70px;
 
 }
 
 
 .hero-content {
 
-  width:50%;
+  width:100%;
+  max-width: 700px;
 
 }
 
 
 .hero-content h1 {
 
-  font-size:48px;
+  font-size:60px;
   line-height:1.2;
 
 }
@@ -92,7 +96,7 @@
 
 .hero-content span {
 
-  color:#2563eb;
+  color:#1b3c53;
 
 }
 
@@ -140,98 +144,42 @@
 
   background:white;
 
-  color:#2563eb;
+  color:#1B3C53;
 
-  border:1px solid #2563eb !important;
+  border:1px solid #1B3C53 !important;
+
+}
+.secondary-btn:hover {
+  background:#1B3C53;
+  color:#d3f3f8;
+  transition: all 0.3s ease-in-out;
+}
+
+.footer {
+
+  margin-top: 100px;
+
+  padding: 20px 10px;
+
+  text-align: center;
+
+  border-top: 1px solid grey;
+
+  background: #1b3c53;
 
 }
 
 
+.footer p {
 
-/* Right card */
-
-
-.hero-image {
-
-  width:40%;
+  color: #d3f3f8;
 
 }
 
+.footer-copy {
 
-.dashboard-card {
-
-  background:white;
-
-  padding:40px;
-
-  border-radius:20px;
-
-  box-shadow:0 15px 40px rgba(0,0,0,0.1);
+  margin-top: 15px;
+  font-size: 14px;
 
 }
 
-
-
-.dashboard-card h3 {
-
-  font-size:25px;
-
-}
-
-
-.dashboard-card p {
-
-  color:#64748b;
-
-  line-height:1.6;
-
-}
-
-
-
-/* Features */
-
-
-.features {
-
-  padding:50px 100px;
-
-  text-align:center;
-
-}
-
-
-.feature-grid {
-
-  display:flex;
-
-  gap:30px;
-
-  margin-top:40px;
-
-}
-
-
-
-.feature-card {
-
-  background:white;
-
-  padding:30px;
-
-  border-radius:15px;
-
-  flex:1;
-
-  box-shadow:0 10px 25px rgba(0,0,0,0.08);
-
-}
-
-
-.feature-card p {
-
-  color:#64748b;
-
-  line-height:1.5;
-
-}

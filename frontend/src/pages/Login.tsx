@@ -19,14 +19,27 @@ function Login() {
     }),
   });
 
-  const data = await response.json();
+const data = await response.json();
 
-  if (data.success && data.access_token) {
-    localStorage.setItem("token", data.access_token);
-    window.location.href = "/dashboard";
-  } else {
+console.log(data);   // ye add karo
+
+if (data.success && data.access_token) {
+
+    localStorage.setItem(
+        "token",
+        data.access_token
+    );
+
+    localStorage.setItem(
+        "role",
+        data.role
+    );
+
+    window.location.href="/dashboard";
+
+} else {
     alert(data.message);
-  }
+}
 };
 
   return (

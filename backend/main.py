@@ -208,12 +208,11 @@ def login_user(user: Login):
     "success": True,
     "message": "Login successful",
     "access_token": token,
-    "data": {
-        "username": db_user.username,
-        "email": db_user.email,
-        "role": db_user.role
+    "username": db_user.username,
+    "email": db_user.email,
+    "role": db_user.role
     }
-}
+
 
 @app.get("/profile")
 def get_profile(

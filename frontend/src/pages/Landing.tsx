@@ -35,7 +35,7 @@ function Landing() {
         <div className="hero-content">
 
           <h1>
-            AI Powered College 
+            All in One Campus  
             <span> Management Platform</span>
           </h1>
 
@@ -67,84 +67,18 @@ function Landing() {
         </div>
 
 
-        <div className="hero-image">
-
-          <div className="dashboard-card">
-
-            <h3>
-              🤖 AI Assistant
-            </h3>
-
-            <p>
-              Ask about assignments, deadlines,
-              submissions and academic documents.
-            </p>
-
-          </div>
-
-        </div>
-
-
       </section>
 
+      <footer className="footer">
+  <p>
+    Simplifying academic management with AI.
+  </p>
 
+  <p className="footer-copy">
+    © 2026 CU Assist. All rights reserved.
+  </p>
 
-      <section className="features">
-
-        <h2>
-          Features
-        </h2>
-
-
-        <div className="feature-grid">
-
-
-          <div className="feature-card">
-            <h3>
-              📚 Assignment Management
-            </h3>
-
-            <p>
-              Teachers can upload assignments
-              and students can submit them easily.
-            </p>
-
-          </div>
-
-
-
-          <div className="feature-card">
-
-            <h3>
-              🤖 RAG AI Assistant
-            </h3>
-
-            <p>
-              Get intelligent answers from uploaded
-              academic documents.
-            </p>
-
-          </div>
-
-
-
-          <div className="feature-card">
-
-            <h3>
-              📄 Resume Intelligence
-            </h3>
-
-            <p>
-              Find students based on skills,
-              projects and experience.
-            </p>
-
-          </div>
-
-
-        </div>
-
-      </section>
+</footer>
 
 
     </div>
