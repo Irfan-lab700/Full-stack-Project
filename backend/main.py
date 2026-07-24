@@ -14,6 +14,7 @@ from fastapi import Depends
 from database import Base, engine
 import models
 from fastapi import UploadFile, File, Form
+from fastapi.responses import FileResponse
 import uuid
 import pdfplumber
 from models import DocumentChunk,Document, Assignment,Submission
@@ -501,6 +502,35 @@ def get_document(document_id: int):
         "subject": document.subject,
         "text": document.extracted_text[:3500]
     }
+    
+@app.get("/documents/view/{document_id}")
+def view_document(document_id: int):
+
+    db = SessionLocal()
+
+    try:
+
+        document = db.query(Document).filter(
+            Document.id == document_id
+        ).first()
+
+
+        if not document:
+            raise HTTPException(
+                status_code=404,
+                detail="Document not found"
+            )
+
+
+        return FileResponse(
+            path=document.filepath,
+            media_type="application/pdf",
+            filename=document.filename
+        )
+
+
+    finally:
+        db.close()
     
 @app.get("/chunks/{document_id}")
 def get_chunks(document_id: int):

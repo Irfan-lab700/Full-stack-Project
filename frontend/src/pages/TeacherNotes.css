@@ -1,0 +1,157 @@
+.teacher-notes-container {
+    padding: 30px;
+    min-height: 100vh;
+    background-color: #f8fafc;
+}
+
+
+.teacher-notes-container h2 {
+    font-size: 28px;
+    color: #1e293b;
+    margin-bottom: 25px;
+}
+
+
+/* Upload Section */
+
+.upload-note-card {
+
+    background: white;
+
+    padding: 25px;
+
+    border-radius: 15px;
+
+    box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+
+    margin-bottom: 35px;
+
+}
+
+
+.upload-note-card h3 {
+
+    color: #1B3C53;
+
+    margin-bottom: 20px;
+
+}
+
+
+.upload-note-card input {
+
+    width: 100%;
+
+    padding: 12px;
+
+    margin-bottom: 15px;
+
+    border: 1px solid #cbd5e1;
+
+    border-radius: 8px;
+
+}
+
+
+.upload-btn {
+
+    padding: 10px 20px;
+
+    background-color: #1B3C53;
+
+    color: white;
+
+    border: none;
+
+    border-radius: 8px;
+
+    cursor: pointer;
+
+}
+
+
+.upload-btn:hover {
+
+    background-color: #2563eb;
+
+}
+
+
+/* Uploaded Notes */
+
+
+.notes-grid {
+
+    display: grid;
+
+    grid-template-columns: repeat(
+        auto-fit,
+        minmax(280px,1fr)
+    );
+
+    gap: 25px;
+
+}
+
+
+
+.teacher-note-card {
+
+    background:white;
+
+    padding:22px;
+
+    border-radius:15px;
+
+    box-shadow:0 5px 15px rgba(0,0,0,0.08);
+
+    border-left:5px solid #1B3C53;
+
+}
+
+
+
+.teacher-note-card h4 {
+
+    color:#1B3C53;
+
+    margin-bottom:10px;
+
+}
+
+
+
+.teacher-note-card p {
+
+    color:#64748b;
+
+    margin-bottom:15px;
+
+}
+
+
+
+/* Delete Button */
+
+.delete-note-btn {
+
+    padding:8px 15px;
+
+    background:#dc2626;
+
+    color:white;
+
+    border:none;
+
+    border-radius:8px;
+
+    cursor:pointer;
+
+}
+
+
+.delete-note-btn:hover {
+
+    background:#b91c1c;
+
+}

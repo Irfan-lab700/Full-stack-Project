@@ -5,6 +5,7 @@ import Dashboard from "./pages/Dashboard";
 import Tasks from "./pages/Tasks";
 import ProtectedRoute from "./pages/ProtectedRoute";
 import Landing from "./pages/Landing";
+import Notes from "./pages/Notes";
 
 function App() {
   return (
@@ -35,6 +36,14 @@ function App() {
           element={
             <ProtectedRoute>
               <Tasks />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/notes"
+          element={
+            <ProtectedRoute>
+              <Notes />
             </ProtectedRoute>
           }
         />
