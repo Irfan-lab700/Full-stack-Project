@@ -6,6 +6,7 @@ import Tasks from "./pages/Tasks";
 import ProtectedRoute from "./pages/ProtectedRoute";
 import Landing from "./pages/Landing";
 import Notes from "./pages/Notes";
+import Opportunities from "./pages/Opportunities";
 
 function App() {
   return (
@@ -44,6 +45,14 @@ function App() {
           element={
             <ProtectedRoute>
               <Notes />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/opportunities"
+          element={
+            <ProtectedRoute>
+              <Opportunities />
             </ProtectedRoute>
           }
         />

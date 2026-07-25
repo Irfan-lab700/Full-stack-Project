@@ -24,6 +24,7 @@ from transformers import (
     AutoTokenizer,
     AutoModelForSeq2SeqLM
 )
+from models import Opportunity
 
 Base.metadata.create_all(bind=engine)
 security = HTTPBearer()
@@ -106,6 +107,32 @@ class AssignmentCreate(BaseModel):
 class SubmissionCreate(BaseModel):
     assignment_id: int
     document_id: int
+    
+class OpportunityCreate(BaseModel):
+
+    company_name:str
+    role:str
+    skills:str
+    description:str
+    deadline:str
+    apply_link:str | None = None
+
+
+
+class OpportunityResponse(BaseModel):
+
+    id:int
+    company_name:str
+    role:str
+    skills:str
+    description:str
+    deadline:str
+    status:str
+    created_by:int
+
+
+    class Config:
+        from_attributes=True
 
 
 @app.get("/")
@@ -809,6 +836,160 @@ def get_my_documents(
             })
 
         return result
+
+    finally:
+        db.close()
+        
+@app.post("/opportunities")
+def create_opportunity(
+    opportunity: OpportunityCreate,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+
+    db = SessionLocal()
+
+    try:
+
+        token = credentials.credentials
+
+        user_data = verify_token(token)
+
+
+        if not user_data:
+            raise HTTPException(
+                status_code=401,
+                detail="Invalid token"
+            )
+
+
+        if user_data["role"] not in ["teacher","admin"]:
+            raise HTTPException(
+                status_code=403,
+                detail="Only teacher can create opportunity"
+            )
+
+
+        user = db.query(DBUser).filter(
+            DBUser.username == user_data["username"]
+        ).first()
+
+
+
+        new_opportunity = Opportunity(
+
+            company_name=opportunity.company_name,
+
+            role=opportunity.role,
+
+            skills=
+            opportunity.skills,
+
+            description=
+            opportunity.description,
+
+            deadline=
+            opportunity.deadline,
+
+            apply_link=
+            opportunity.apply_link,
+
+            created_by=user.id
+
+        )
+
+
+        db.add(new_opportunity)
+
+        db.commit()
+
+        db.refresh(new_opportunity)
+
+
+        return new_opportunity
+
+
+    finally:
+        db.close()
+        
+@app.get("/opportunities")
+def get_opportunities(
+credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+
+    db=SessionLocal()
+
+    try:
+
+        token=credentials.credentials
+
+        user_data=verify_token(token)
+
+
+        if not user_data:
+            raise HTTPException(
+                status_code=401
+            )
+
+
+        opportunities = db.query(
+            Opportunity
+        ).all()
+
+
+        return opportunities
+
+
+    finally:
+        db.close()
+        
+@app.delete("/opportunities/{id}")
+def delete_opportunity(
+id:int,
+credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+
+    db=SessionLocal()
+
+    try:
+
+        token=credentials.credentials
+
+        user_data=verify_token(token)
+
+
+        if user_data["role"] not in [
+            "teacher",
+            "admin"
+        ]:
+            raise HTTPException(
+                status_code=403
+            )
+
+
+        opportunity = db.query(
+            Opportunity
+        ).filter(
+            Opportunity.id==id
+        ).first()
+
+
+
+        if not opportunity:
+            raise HTTPException(
+                status_code=404
+            )
+
+
+        db.delete(opportunity)
+
+        db.commit()
+
+
+        return {
+            "message":
+            "Opportunity deleted"
+        }
+
 
     finally:
         db.close()

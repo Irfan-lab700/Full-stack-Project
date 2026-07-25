@@ -2,6 +2,8 @@ from sqlalchemy import Column, Integer, String, ForeignKey
 from sqlalchemy.orm import relationship
 from database import Base
 from sqlalchemy import Text
+from sqlalchemy import DateTime
+from datetime import datetime
 
 class User(Base):
     __tablename__ = "users"
@@ -105,4 +107,36 @@ class Submission(Base):
     document_id = Column(
         Integer,
         ForeignKey("documents.id")
+    )
+    
+class Opportunity(Base):
+    __tablename__ = "opportunities"
+
+    id = Column(Integer, primary_key=True, index=True)
+
+    company_name = Column(String, nullable=False)
+
+    role = Column(String, nullable=False)
+
+    skills = Column(String, nullable=False)
+
+    description = Column(Text, nullable=False)
+
+    deadline = Column(String, nullable=False)
+
+    status = Column(
+        String,
+        default="Live"
+    )
+    
+    apply_link = Column(String, nullable=True)
+
+    created_by = Column(
+        Integer,
+        ForeignKey("users.id")
+    )
+
+    created_at = Column(
+        DateTime,
+        default=datetime.utcnow
     )
