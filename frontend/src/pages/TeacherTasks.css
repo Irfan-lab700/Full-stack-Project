@@ -176,6 +176,18 @@
 
 }
 
+.delete-btn{
+  margin-top:10px;
+  padding:8px 14px;
+  border:none;
+  border-radius:8px;
+  cursor:pointer;
+}
+
+.delete-btn:hover{
+  transform:scale(1.03);
+}
+
 @media (max-width: 900px) {
 
   .tasks-grid {

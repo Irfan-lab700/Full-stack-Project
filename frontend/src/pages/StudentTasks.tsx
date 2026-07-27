@@ -13,9 +13,10 @@ type Assignment = {
 
 type Submission = {
     id:number;
-    assignment_id:number;
+    assignment:string;
+    student:string;
+    document:string;
     document_id:number;
-    student_id:number;
 };
 
 
@@ -49,9 +50,15 @@ function StudentTasks(){
         try{
 
             const response =
-            await fetch(
-                "http://127.0.0.1:8000/assignments"
-            );
+await fetch(
+ "http://127.0.0.1:8000/assignments",
+ {
+   headers:{
+     Authorization:
+     `Bearer ${token}`
+   }
+ }
+);
 
 
             const data =
@@ -66,6 +73,46 @@ function StudentTasks(){
         }
 
     };
+    const uploadFile = async()=>{
+
+    if(!selectedFile){
+        alert("Select file");
+        return null;
+    }
+
+
+    const formData = new FormData();
+
+    formData.append(
+        "subject",
+        "Assignment Submission"
+    );
+
+    formData.append(
+        "file",
+        selectedFile
+    );
+
+
+    const response = await fetch(
+        "http://127.0.0.1:8000/upload-document",
+        {
+            method:"POST",
+            headers:{
+                Authorization:
+                `Bearer ${token}`
+            },
+            body:formData
+        }
+    );
+
+
+    const data = await response.json();
+
+
+    return data.document_id;
+
+};
 
 
 
@@ -125,6 +172,12 @@ function StudentTasks(){
             return;
         }
 
+        const documentId = await uploadFile();
+
+if(!documentId){
+    return;
+}
+
 
 
         /*
@@ -156,6 +209,7 @@ function StudentTasks(){
                     `Bearer ${token}`
 
                 },
+                
 
 
                 body:JSON.stringify({
@@ -164,7 +218,7 @@ function StudentTasks(){
                     selectedAssignment,
 
 
-                    document_id:1
+                     document_id:documentId
 
                 })
 
@@ -200,6 +254,31 @@ function StudentTasks(){
         }
 
     };
+    const handleDeleteSubmission = async (
+  submissionId:number
+) => {
+
+  try {
+
+    await fetch(
+      `http://127.0.0.1:8000/submissions/${submissionId}`,
+      {
+        method:"DELETE",
+        headers:{
+          Authorization:
+          `Bearer ${token}`
+        }
+      }
+    );
+
+    fetchSubmissions();
+
+  }
+  catch(error){
+    console.log(error);
+  }
+
+};
 
 
 
@@ -392,7 +471,7 @@ Submission ID:
 
 <p>
 Assignment ID:
-{submission.assignment_id}
+{submission.assignment}
 </p>
 
 
@@ -400,6 +479,15 @@ Assignment ID:
 Document ID:
 {submission.document_id}
 </p>
+<button
+  onClick={() =>
+    handleDeleteSubmission(
+      submission.id
+    )
+  }
+>
+  Delete Submission
+</button>
 
 
 </div>

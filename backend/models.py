@@ -39,6 +39,11 @@ class Document(Base):
         Integer,
         ForeignKey("users.id")
     )
+    
+    document_type = Column(
+        String,
+        default="note"
+    )
 
     owner = relationship(
         "User",

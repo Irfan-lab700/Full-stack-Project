@@ -323,6 +323,19 @@ async def upload_document(
         db_user = db.query(DBUser).filter(
             DBUser.username == user_data["username"]
         ).first()
+        if user_data["role"] == "admin":
+          document_type = "note"
+
+        elif user_data["role"] == "user":
+          document_type = "submission"
+
+        else:
+          raise HTTPException(
+        status_code=403,
+        detail="Invalid role"
+    )
+        
+        
 
         if not db_user:
             raise HTTPException(
@@ -365,12 +378,14 @@ async def upload_document(
                text += page_text + "\n"
 
         new_document = Document(
-        filename=file.filename,
-        filepath=file_path,
-        subject=subject,
-        extracted_text=text,
-        uploaded_by=db_user.id
+    filename=file.filename,
+    filepath=file_path,
+    subject=subject,
+    extracted_text=text,
+    uploaded_by=db_user.id,
+    document_type=document_type
 )
+
 
         db.add(new_document)
         db.commit()
@@ -419,6 +434,7 @@ async def upload_document(
             "subject": new_document.subject,
             "uploaded_by": db_user.username,
             "role": db_user.role
+            
         }
 
     finally:
@@ -493,7 +509,9 @@ def get_documents(
                 detail="Invalid token"
             )
 
-        documents = db.query(Document).all()
+        documents = db.query(Document).filter(
+    Document.document_type == "note"
+).all()
 
         result = []
 
@@ -605,19 +623,16 @@ def create_assignment(
             )
 
 
-        # Role Authorization
+        # Only admin (teacher) can create
         if user_data["role"] != "admin":
             raise HTTPException(
                 status_code=403,
-                detail="Only admin can create assignments"
+                detail="Only teacher can create assignments"
             )
 
 
-        username = user_data["username"]
-
-
         user = db.query(DBUser).filter(
-            DBUser.username == username
+            DBUser.username == user_data["username"]
         ).first()
 
 
@@ -650,17 +665,46 @@ def create_assignment(
 
     finally:
         db.close()
-
+        
 @app.get("/assignments")
-def get_assignments():
+def get_assignments(
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
 
     db = SessionLocal()
 
     try:
 
-        assignments = db.query(
-            Assignment
-        ).all()
+        token = credentials.credentials
+
+        user_data = verify_token(token)
+
+        if not user_data:
+            raise HTTPException(
+                status_code=401,
+                detail="Invalid token"
+            )
+
+
+        user = db.query(DBUser).filter(
+            DBUser.username == user_data["username"]
+        ).first()
+
+
+        if user_data["role"] == "admin":
+
+            assignments = db.query(
+                Assignment
+            ).filter(
+                Assignment.created_by == user.id
+            ).all()
+
+        else:
+
+            assignments = db.query(
+                Assignment
+            ).all()
+
 
 
         result = []
@@ -686,6 +730,62 @@ def get_assignments():
 
 
         return result
+
+
+    finally:
+        db.close()
+        
+@app.delete("/assignments/{assignment_id}")
+def delete_assignment(
+    assignment_id:int,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+
+    db = SessionLocal()
+
+    try:
+
+        token = credentials.credentials
+
+        user_data = verify_token(token)
+
+
+        if not user_data:
+            raise HTTPException(
+                status_code=401,
+                detail="Invalid token"
+            )
+
+
+        if user_data["role"] != "admin":
+            raise HTTPException(
+                status_code=403,
+                detail="Only teacher can delete assignments"
+            )
+
+
+        assignment = db.query(
+            Assignment
+        ).filter(
+            Assignment.id == assignment_id
+        ).first()
+
+
+        if not assignment:
+            raise HTTPException(
+                status_code=404,
+                detail="Assignment not found"
+            )
+
+
+        db.delete(assignment)
+        db.commit()
+
+
+        return {
+            "message":
+            "Assignment deleted"
+        }
 
 
     finally:
@@ -741,60 +841,169 @@ def create_submission(
         db.close()
         
 @app.get("/submissions")
-def get_submissions():
+def get_submissions(
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
 
     db = SessionLocal()
 
     try:
 
-        submissions = db.query(
-            Submission
-        ).all()
+        token = credentials.credentials
+
+        user_data = verify_token(token)
+
+
+        if not user_data:
+            raise HTTPException(
+                status_code=401,
+                detail="Invalid token"
+            )
+
+
+        current_user = db.query(DBUser).filter(
+            DBUser.username == user_data["username"]
+        ).first()
+
+
+
+        if user_data["role"] == "user":
+
+            submissions = db.query(
+                Submission
+            ).filter(
+                Submission.student_id == current_user.id
+            ).all()
+
+
+
+        elif user_data["role"] == "admin":
+
+
+            teacher_assignments = db.query(
+                Assignment.id
+            ).filter(
+                Assignment.created_by == current_user.id
+            ).all()
+
+
+            assignment_ids = [
+                a.id for a in teacher_assignments
+            ]
+
+
+            submissions = db.query(
+                Submission
+            ).filter(
+                Submission.assignment_id.in_(assignment_ids)
+            ).all()
+
+
+        else:
+
+            submissions = []
+
+
 
         result = []
+
 
         for submission in submissions:
 
             assignment = db.query(
                 Assignment
             ).filter(
-                Assignment.id ==
-                submission.assignment_id
+                Assignment.id == submission.assignment_id
             ).first()
+
 
             student = db.query(
                 DBUser
             ).filter(
-                DBUser.id ==
-                submission.student_id
+                DBUser.id == submission.student_id
             ).first()
+
 
             document = db.query(
                 Document
             ).filter(
-                Document.id ==
-                submission.document_id
+                Document.id == submission.document_id
             ).first()
 
+
+
             result.append({
+
                 "id": submission.id,
 
                 "assignment":
                 assignment.title
                 if assignment else "N/A",
 
+
                 "student":
                 student.username
                 if student else "N/A",
 
+
                 "document":
                 document.filename
                 if document else "N/A",
-                "document_id": document.id
-                if document.id else "N/A"
+
+
+                "document_id":
+                document.id
+                if document else None
+
             })
 
+
         return result
+
+
+    finally:
+        db.close()
+@app.delete("/submissions/{submission_id}")
+def delete_submission(
+    submission_id:int,
+    credentials:
+    HTTPAuthorizationCredentials =
+    Depends(security)
+):
+
+    db = SessionLocal()
+
+    try:
+
+        token = credentials.credentials
+
+        user_data = verify_token(token)
+
+        if not user_data:
+            raise HTTPException(
+                status_code=401,
+                detail="Invalid token"
+            )
+
+        submission = db.query(
+            Submission
+        ).filter(
+            Submission.id == submission_id
+        ).first()
+
+        if not submission:
+            raise HTTPException(
+                status_code=404,
+                detail="Submission not found"
+            )
+
+        db.delete(submission)
+        db.commit()
+
+        return {
+            "message":
+            "Submission deleted"
+        }
 
     finally:
         db.close()

@@ -8,6 +8,13 @@ type Assignment = {
   subject: string;
   deadline: string;
 };
+type Submission = {
+  id:number;
+  assignment:string;
+  student:string;
+  document:string;
+  document_id:number;
+};
 
 function TeacherTasks() {
   const [title, setTitle] = useState("");
@@ -16,12 +23,19 @@ function TeacherTasks() {
   const [description, setDescription] = useState("");
 
   const [assignments, setAssignments] = useState<Assignment[]>([]);
+  const [submissions,setSubmissions] = useState<Submission[]>([]);
 
   const fetchAssignments = async () => {
     try {
       const response = await fetch(
-        "http://127.0.0.1:8000/assignments"
-      );
+ "http://127.0.0.1:8000/assignments",
+ {
+   headers:{
+     Authorization:
+     `Bearer ${localStorage.getItem("token")}`
+   }
+ }
+);
 
       const data = await response.json();
 
@@ -31,12 +45,44 @@ function TeacherTasks() {
     }
   };
 
+
+  const fetchSubmissions = async()=>{
+
+  try{
+
+    const response = await fetch(
+      "http://127.0.0.1:8000/submissions",
+      {
+        headers:{
+          Authorization:
+          `Bearer ${localStorage.getItem("token")}`
+        }
+      }
+    );
+
+
+    const data = await response.json();
+
+    setSubmissions(data);
+
+  }
+  catch(error){
+    console.log(error);
+  }
+
+};
+
   useEffect(() => {
     fetchAssignments();
+    fetchSubmissions();
   }, []);
+
+
+
 
   const handleCreateAssignment = async () => {
     const token = localStorage.getItem("token");
+    console.log("ASSIGNMENT TOKEN =", token);
 
     try {
       const response = await fetch(
@@ -68,6 +114,35 @@ function TeacherTasks() {
       console.log(error);
     }
   };
+  const handleDeleteAssignment = async (
+  assignmentId:number
+) => {
+
+  const token =
+  localStorage.getItem("token");
+
+  try {
+
+    await fetch(
+      `http://127.0.0.1:8000/assignments/${assignmentId}`,
+      {
+        method:"DELETE",
+        headers:{
+          Authorization:
+          `Bearer ${token}`
+        }
+      }
+    );
+
+    fetchAssignments();
+
+  }
+  catch(error){
+    console.log(error);
+  }
+
+};
+
 
   return (
     <div className="teacher-tasks-container">
@@ -136,29 +211,98 @@ function TeacherTasks() {
           ) : (
             assignments.map((assignment) => (
               <div
-                className="assignment-card"
-                key={assignment.id}
-              >
-                <h4>
-                  {assignment.title}
-                </h4>
+  className="assignment-card"
+  key={assignment.id}
+>
+  <h4>
+    {assignment.title}
+  </h4>
 
-                <span className="subject-badge">
-                  {assignment.subject}
-                </span>
+  <span className="subject-badge">
+    {assignment.subject}
+  </span>
 
-                <p className="deadline">
-                  📅 {assignment.deadline}
-                </p>
+  <p className="deadline">
+    📅 {assignment.deadline}
+  </p>
 
-                <p className="description">
-                  {assignment.description}
-                </p>
-              </div>
+  <p className="description">
+    {assignment.description}
+  </p>
+
+  <button
+    className="delete-btn"
+    onClick={() =>
+      handleDeleteAssignment(
+        assignment.id
+      )
+    }
+  >
+    Delete
+  </button>
+
+</div>
             ))
           )}
 
         </div>
+        <div className="task-card">
+
+<h3>
+Student Submissions
+</h3>
+
+
+{
+submissions.length === 0 ?
+
+<p className="empty-text">
+No submissions yet
+</p>
+
+
+:
+
+submissions.map((submission)=>(
+
+<div
+className="assignment-card"
+key={submission.id}
+>
+
+<h4>
+{submission.assignment}
+</h4>
+
+
+<p>
+<b>Student:</b>
+{submission.student}
+</p>
+
+
+<p>
+<b>File:</b>
+{submission.document}
+</p>
+
+
+<a
+href={`http://127.0.0.1:8000/documents/view/${submission.document_id}`}
+target="_blank"
+>
+View Submission
+</a>
+
+
+</div>
+
+))
+
+}
+
+
+</div>
 
       </div>
 

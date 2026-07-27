@@ -1,6 +1,4 @@
 import "./AdminDashboard.css";
-import AssignmentList from "./Assignmentlist";
-import SubmissionList from "./SubmissionList";
 import { useState, useEffect } from "react";
 
 type DocumentType = {
@@ -228,11 +226,6 @@ return ( <div className="admin-container"> <h2>🛡️ Admin Dashboard</h2>
   <p>
     View system insights.
   </p>
-</div>
-
-<div className="admin-card">
-  <AssignmentList />
-  <SubmissionList />
 </div>
 
 
