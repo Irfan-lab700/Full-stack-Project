@@ -11,6 +11,7 @@ skills:string;
 description:string;
 deadline:string;
 status:string;
+apply_link:string;
 
 }
 
@@ -24,11 +25,20 @@ const [opportunities,setOpportunities]
 useState<Opportunity[]>([]);
 
 
+const [loading,setLoading]
+=
+useState(true);
+
+
+
 
 useEffect(()=>{
 
 
 const fetchData=async()=>{
+
+
+try{
 
 
 const token=
@@ -40,10 +50,12 @@ await fetch(
 "http://127.0.0.1:8000/opportunities",
 {
 headers:{
-Authorization:`Bearer ${token}`
+Authorization:
+`Bearer ${token}`
 }
 }
 );
+
 
 
 const data=
@@ -54,6 +66,21 @@ setOpportunities(data);
 
 
 }
+catch(error){
+
+console.log(error);
+
+}
+
+finally{
+
+setLoading(false);
+
+}
+
+
+}
+
 
 
 fetchData();
@@ -63,29 +90,83 @@ fetchData();
 
 
 
+
+
 return(
 
 <div className="opportunity-container">
 
 
+
+<div className="opportunity-header">
+
 <h2>
 Available Opportunities
 </h2>
 
+<p>
+Explore internships and placement opportunities
+</p>
+
+</div>
+
+
+
+
+
+<div className="opportunity-list">
+
 
 
 {
+loading ?
+
+
+<p>
+Loading opportunities...
+</p>
+
+
+
+:
+
+opportunities.filter(
+(item)=>
+item.status==="Live"
+).length===0 ?
+
+
+<p>
+No opportunities available currently
+</p>
+
+
+
+:
+
+
 opportunities
+
 .filter(
-(item)=>item.status==="Live"
+(item)=>
+item.status==="Live"
 )
+
 .map((item)=>(
 
 
+
 <div
+
 className="opportunity-card"
+
 key={item.id}
+
 >
+
+
+
+<div className="card-top">
 
 
 <h3>
@@ -93,15 +174,30 @@ key={item.id}
 </h3>
 
 
+<span className="status-badge">
+Live
+</span>
+
+
+</div>
+
+
+
+
 <p>
-Role: {item.role}
+<b>Role:</b>
+{" "}
+{item.role}
 </p>
 
 
+
 <p>
-Required Skills:
+<b>Required Skills:</b>
+{" "}
 {item.skills}
 </p>
+
 
 
 <p>
@@ -109,22 +205,49 @@ Required Skills:
 </p>
 
 
+
 <p>
-Deadline:
+<b>Deadline:</b>
+{" "}
 {item.deadline}
 </p>
 
 
-<button>
-Apply
+
+
+
+{
+item.apply_link &&
+
+<a
+href={item.apply_link}
+target="_blank"
+rel="noreferrer"
+>
+
+<button className="apply-btn">
+Apply Now
 </button>
+
+</a>
+
+}
+
+
 
 
 </div>
 
 
+
 ))
+
+
 }
+
+
+
+</div>
 
 
 

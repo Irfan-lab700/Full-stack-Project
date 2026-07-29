@@ -1,5 +1,5 @@
 import TeacherNotes from "./TeacherNotes";
-import StudentNotes from "./StudentNotes";
+import StudentNotes from "./StudentNotes"
 
 function Notes() {
 

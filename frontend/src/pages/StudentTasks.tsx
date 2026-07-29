@@ -84,14 +84,21 @@ await fetch(
     const formData = new FormData();
 
     formData.append(
-        "subject",
-        "Assignment Submission"
-    );
+    "subject",
+    "Assignment Submission"
+);
 
-    formData.append(
-        "file",
-        selectedFile
-    );
+
+formData.append(
+    "document_type",
+    "submission"
+);
+
+
+formData.append(
+    "file",
+    selectedFile
+);
 
 
     const response = await fetch(
