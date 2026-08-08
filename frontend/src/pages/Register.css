@@ -10,12 +10,12 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  background-color:#d3f3f8;
+  background-color: #e3e3dbac;
 }
 
 .register-form {
   width: 400px;
-  background: #1B3C53;
+  background: #224248;
   padding: 40px;
   border-radius: 15px 0 0 15px;
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);

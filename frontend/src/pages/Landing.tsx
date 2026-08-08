@@ -7,8 +7,9 @@ export const Landing=()=>{
   return (
     <div className="landing-page">
       <nav className="navbar">
-        <h2>Campus Sync</h2>
-      </nav>
+       <h2>Campus Sync</h2>
+       <a href="https://cup.edu.in/" target="_blank" rel="noopener noreferrer" className = "uni-link" >Website</a>
+</nav>
       <section className="hero">
         <div className="hero-left">
           <div className="content-box">
@@ -37,7 +38,7 @@ export const Landing=()=>{
           </div>
           <div className="image-box">
             <img
-              src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f"
+              src=""
               alt="students"
             />
           </div>
