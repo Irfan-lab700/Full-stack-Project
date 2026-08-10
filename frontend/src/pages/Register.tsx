@@ -33,7 +33,7 @@ function Register() {
     }
 
     alert("Registration successful");
-    console.log(data);
+    
 
   } catch (error) {
     alert("Server error");

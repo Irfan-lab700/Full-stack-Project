@@ -1,6 +1,8 @@
+import { useNavigate } from "react-router-dom";
 import "./AdminDashboard.css";
 
 function AdminDashboard() {
+  const navigate = useNavigate();
   return (
     <div className="dashboard">
       <div className="dashboard-header">
@@ -22,9 +24,9 @@ function AdminDashboard() {
         </div>
       </div>
       <div className="quick-actions">
-        <button onClick={() => window.location.href = "/tasks"}>Upload Notes</button>
-        <button onClick={() => window.location.href = "/assignments"}>Create Assignment</button>
-        <button onClick={() => window.location.href = "/opportunities"}>Post Opportunity</button>
+        <button onClick={() => navigate("/tasks")}>Upload Notes</button>
+        <button onClick={() => navigate("/assignments")}>Create Assignment</button>
+        <button onClick={() => navigate("/opportunities")}>Post Opportunity</button>
       </div>
     </div>
   );

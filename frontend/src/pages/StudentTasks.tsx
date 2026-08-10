@@ -1,523 +1,359 @@
-import { useEffect, useState } from "react";
-import "./StudentTasks.css";
 
+import { useEffect, useRef, useState } from "react";
+import "./StudentTasks.css";
+import Navbar from "../pages/Navbar";
+import { useNavigate } from "react-router-dom";
 
 type Assignment = {
-    id:number;
-    title:string;
-    description:string;
-    subject:string;
-    deadline:string;
+  id: number;
+  title: string;
+  description: string;
+  subject: string;
+  deadline: string;
 };
-
 
 type Submission = {
-    id:number;
-    assignment:string;
-    student:string;
-    document:string;
-    document_id:number;
+  id: number;
+  assignment: string;
+  student: string;
+  document: string;
+  document_id: number;
 };
 
+function StudentTasks() {
+  const [assignments, setAssignments] = useState<Assignment[]>([]);
+  const [submissions, setSubmissions] = useState<Submission[]>([]);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [selectedAssignment, setSelectedAssignment] =
+    useState<number | null>(null);
+  const [message, setMessage] = useState("");
 
-function StudentTasks(){
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
+  const token = localStorage.getItem("token");
+  const username = localStorage.getItem("username") || "";
+  const navigate = useNavigate();
 
-    const [assignments,setAssignments] =
-        useState<Assignment[]>([]);
-
-
-    const [submissions,setSubmissions] =
-        useState<Submission[]>([]);
-
-
-    const [selectedFile,setSelectedFile] =
-        useState<File | null>(null);
-
-
-    const [selectedAssignment,setSelectedAssignment] =
-        useState<number | null>(null);
-
-
-
-    const token =
-        localStorage.getItem("token");
-
-
-
-    const fetchAssignments = async()=>{
-
-        try{
-
-            const response =
-await fetch(
- "http://127.0.0.1:8000/assignments",
- {
-   headers:{
-     Authorization:
-     `Bearer ${token}`
-   }
- }
-);
-
-
-            const data =
-            await response.json();
-
-
-            setAssignments(data);
-
+  const fetchAssignments = async () => {
+    try {
+      const response = await fetch(
+        "http://127.0.0.1:8000/assignments",
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         }
-        catch(error){
-            console.log(error);
-        }
+      );
 
-    };
-    const uploadFile = async()=>{
+      if (!response.ok) return;
 
-    if(!selectedFile){
-        alert("Select file");
-        return null;
+      const data = await response.json();
+      setAssignments(data);
+    } catch (error) {
+      console.log(error);
     }
+  };
 
+  const fetchSubmissions = async () => {
+    try {
+      const response = await fetch(
+        "http://127.0.0.1:8000/submissions",
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (!response.ok) return;
+
+      const data = await response.json();
+      setSubmissions(data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    fetchAssignments();
+    fetchSubmissions();
+  }, []);
+
+  const selectedAssignmentData = assignments.find(
+    (assignment) => assignment.id === selectedAssignment
+  );
+
+  const uploadFile = async () => {
+    if (!selectedFile) return null;
 
     const formData = new FormData();
 
-    formData.append(
-    "subject",
-    "Assignment Submission"
-);
+    formData.append("subject", "Assignment Submission");
+    formData.append("document_type", "submission");
+    formData.append("file", selectedFile);
 
-
-formData.append(
-    "document_type",
-    "submission"
-);
-
-
-formData.append(
-    "file",
-    selectedFile
-);
-
-
-    const response = await fetch(
+    try {
+      const response = await fetch(
         "http://127.0.0.1:8000/upload-document",
         {
-            method:"POST",
-            headers:{
-                Authorization:
-                `Bearer ${token}`
-            },
-            body:formData
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          body: formData,
         }
-    );
+      );
 
+      if (!response.ok) return null;
 
-    const data = await response.json();
+      const data = await response.json();
 
+      return data.document_id;
+    } catch (error) {
+      console.log(error);
+      return null;
+    }
+  };
 
-    return data.document_id;
+  const handleSubmit = async () => {
+    if (!selectedAssignment || !selectedFile) return;
 
-};
+    setMessage("");
 
+    const documentId = await uploadFile();
 
+    if (!documentId) return;
 
-    const fetchSubmissions = async()=>{
-
-        try{
-
-            const response =
-            await fetch(
-                "http://127.0.0.1:8000/submissions",
-                {
-                    headers:{
-                        Authorization:
-                        `Bearer ${token}`
-                    }
-                }
-            );
-
-
-            const data =
-            await response.json();
-
-
-            setSubmissions(data);
-
+    try {
+      const response = await fetch(
+        "http://127.0.0.1:8000/submissions",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            assignment_id: selectedAssignment,
+            document_id: documentId,
+          }),
         }
-        catch(error){
-            console.log(error);
-        }
+      );
 
-    };
+      if (!response.ok) return;
 
+      await response.json();
 
+      await fetchSubmissions();
 
-    useEffect(()=>{
+      setSelectedFile(null);
+      setSelectedAssignment(null);
 
-        fetchAssignments();
-        fetchSubmissions();
-
-    },[]);
-
-
-
-
-
-    const handleSubmit = async()=>{
-
-
-        if(!selectedAssignment){
-            alert("Select assignment");
-            return;
-        }
-
-
-        if(!selectedFile){
-            alert("Select file");
-            return;
-        }
-
-        const documentId = await uploadFile();
-
-if(!documentId){
-    return;
-}
-
-
-
-        /*
-          Currently backend expects:
-          assignment_id
-          document_id
-
-          File upload API will create document_id
-          after integrating upload.
-        */
-
-
-        try{
-
-
-            const response =
-            await fetch(
-                "http://127.0.0.1:8000/submissions",
-                {
-
-                method:"POST",
-
-                headers:{
-
-                    "Content-Type":
-                    "application/json",
-
-                    Authorization:
-                    `Bearer ${token}`
-
-                },
-                
-
-
-                body:JSON.stringify({
-
-                    assignment_id:
-                    selectedAssignment,
-
-
-                     document_id:documentId
-
-                })
-
-                }
-            );
-
-
-
-            const data =
-            await response.json();
-
-
-            console.log(data);
-
-
-            alert(
-                "Assignment Submitted"
-            );
-
-
-            fetchSubmissions();
-
-
-            setSelectedFile(null);
-            setSelectedAssignment(null);
-
-
-        }
-        catch(error){
-
-            console.log(error);
-
-        }
-
-    };
-    const handleDeleteSubmission = async (
-  submissionId:number
-) => {
-
-  try {
-
-    await fetch(
-      `http://127.0.0.1:8000/submissions/${submissionId}`,
-      {
-        method:"DELETE",
-        headers:{
-          Authorization:
-          `Bearer ${token}`
-        }
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
       }
-    );
 
-    fetchSubmissions();
+      setMessage("Assignment submitted successfully.");
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
-  }
-  catch(error){
-    console.log(error);
-  }
+  const handleDeleteSubmission = async (
+    submissionId: number
+  ) => {
+    try {
+      const response = await fetch(
+        `http://127.0.0.1:8000/submissions/${submissionId}`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
-};
+      if (!response.ok) return;
 
+      fetchSubmissions();
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("role");
+    localStorage.removeItem("username");
 
+    navigate("/login");
+  };
 
+  const handleSelectAssignment = (id: number) => {
+    setSelectedAssignment(id);
+    setMessage("");
+  };
 
-return(
+  return (
+    <>
+      <Navbar
+        username={username}
+        onLogout={handleLogout}
+      />
 
-<div className="student-task-container">
+      <div className="student-tasks-container">
 
+        <div className="tasks-header">
+          <h2>Assignments</h2>
+          <p>View assignments and submit your work.</p>
+        </div>
 
-<h2>
-Student Tasks
-</h2>
+        <div className="tasks-grid">
 
+          {/* Available Assignments */}
 
+          <div className="task-card">
+            <h3>Available Assignments</h3>
 
-<div className="student-grid">
+            {assignments.length === 0 ? (
+              <p className="empty-text">
+                No assignments available
+              </p>
+            ) : (
+              assignments.map((assignment) => (
+                <div
+                  className={`assignment-card ${
+                    selectedAssignment === assignment.id
+                      ? "selected-assignment"
+                      : ""
+                  }`}
+                  key={assignment.id}
+                >
+                  <h4>{assignment.title}</h4>
 
+                  <span className="subject-badge">
+                    {assignment.subject}
+                  </span>
 
+                  <p>📅 {assignment.deadline}</p>
 
-<div className="student-card">
+                  <p>{assignment.description}</p>
 
+                  <button
+                    onClick={() =>
+                      handleSelectAssignment(assignment.id)
+                    }
+                  >
+                    {selectedAssignment === assignment.id
+                      ? "Selected"
+                      : "Select Assignment"}
+                  </button>
+                </div>
+              ))
+            )}
+          </div>
 
-<h3>
-Available Assignments
-</h3>
+          {/* Submit Assignment */}
 
+          <div className="task-card">
+            <h3>Submit Assignment</h3>
 
+            {selectedAssignmentData ? (
+              <div className="selected-assignment-info">
+                <span>Selected Assignment</span>
+                <strong>
+                  {selectedAssignmentData.title}
+                </strong>
+                <small>
+                  {selectedAssignmentData.subject}
+                </small>
+              </div>
+            ) : (
+              <p className="empty-text">
+                Select an assignment first.
+              </p>
+            )}
 
-{
-assignments.length===0 ?
+            <input
+              ref={fileInputRef}
+              type="file"
+              onChange={(e) => {
+                if (e.target.files?.[0]) {
+                  setSelectedFile(e.target.files[0]);
+                  setMessage("");
+                }
+              }}
+            />
 
-<p>
-No assignments available
-</p>
+            {selectedFile && (
+              <div className="selected-file">
+                <span>Selected File</span>
+                <strong>{selectedFile.name}</strong>
+              </div>
+            )}
 
+            <button
+              onClick={handleSubmit}
+              disabled={!selectedAssignment || !selectedFile}
+            >
+              Submit Assignment
+            </button>
 
-:
+            {message && (
+              <p className="success-message">
+                ✓ {message}
+              </p>
+            )}
+          </div>
 
-assignments.map((assignment)=>(
+          {/* My Submissions */}
 
+          <div className="task-card">
+            <h3>My Submissions</h3>
 
-<div
-className="assignment-box"
-key={assignment.id}
->
+            {submissions.length === 0 ? (
+              <p className="empty-text">
+                No submissions yet
+              </p>
+            ) : (
+              submissions.map((submission) => (
+                <div
+                  className="submission-card"
+                  key={submission.id}
+                >
+                  <p>
+                    <strong>Assignment</strong>
+                    <br />
+                    {submission.assignment}
+                  </p>
 
+                  <a
+                    href={`http://127.0.0.1:8000/documents/view/${submission.document_id}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    View Submission
+                  </a>
 
-<h4>
-{assignment.title}
-</h4>
+                  <button
+                    className="delete-btn"
+                    onClick={() =>
+                      handleDeleteSubmission(
+                        submission.id
+                      )
+                    }
+                  >
+                    Delete
+                  </button>
+                </div>
+              ))
+            )}
+          </div>
 
-
-<p>
-<b>Subject:</b>
-{assignment.subject}
-</p>
-
-
-<p>
-{assignment.description}
-</p>
-
-
-<p>
-<b>Deadline:</b>
-{assignment.deadline}
-</p>
-
-
-
-<button
-
-onClick={()=>{
-
-setSelectedAssignment(
-assignment.id
-)
-
-}}
-
->
-
-Select
-
-</button>
-
-
-
-</div>
-
-
-))
-
+        </div>
+      </div>
+    </>
+  );
 }
-
-
-</div>
-
-
-
-
-
-
-<div className="student-card">
-
-
-<h3>
-Submit Assignment
-</h3>
-
-
-
-<input
-type="file"
-
-onChange={(e)=>{
-
-if(e.target.files)
-setSelectedFile(
-e.target.files[0]
-);
-
-}}
-
-/>
-
-
-
-{
-selectedFile &&
-
-<p>
-Selected:
-{selectedFile.name}
-</p>
-
-}
-
-
-
-<button
-onClick={handleSubmit}
->
-
-Submit
-
-</button>
-
-
-</div>
-
-
-
-
-
-
-<div className="student-card">
-
-
-<h3>
-My Submissions
-</h3>
-
-
-
-{
-submissions.length===0 ?
-
-<p>
-No submissions
-</p>
-
-
-:
-
-submissions.map((submission)=>(
-
-
-<div
-className="submission-box"
-key={submission.id}
->
-
-<p>
-Submission ID:
-{submission.id}
-</p>
-
-
-<p>
-Assignment ID:
-{submission.assignment}
-</p>
-
-
-<p>
-Document ID:
-{submission.document_id}
-</p>
-<button
-  onClick={() =>
-    handleDeleteSubmission(
-      submission.id
-    )
-  }
->
-  Delete Submission
-</button>
-
-
-</div>
-
-
-))
-
-}
-
-
-</div>
-
-
-
-</div>
-
-
-</div>
-
-)
-
-
-}
-
 
 export default StudentTasks;

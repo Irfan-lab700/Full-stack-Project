@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 import "./TeacherTasks.css";
+import Navbar from "../pages/Navbar";
+import { useNavigate } from "react-router-dom";
 
 type Assignment = {
   id: number;
@@ -8,12 +10,13 @@ type Assignment = {
   subject: string;
   deadline: string;
 };
+
 type Submission = {
-  id:number;
-  assignment:string;
-  student:string;
-  document:string;
-  document_id:number;
+  id: number;
+  assignment: string;
+  student: string;
+  document: string;
+  document_id: number;
 };
 
 function TeacherTasks() {
@@ -23,67 +26,66 @@ function TeacherTasks() {
   const [description, setDescription] = useState("");
 
   const [assignments, setAssignments] = useState<Assignment[]>([]);
-  const [submissions,setSubmissions] = useState<Submission[]>([]);
+  const [submissions, setSubmissions] = useState<Submission[]>([]);
+  const [username, setUsername] = useState("");
+
+  const navigate = useNavigate();
+  const token = localStorage.getItem("token");
+
+  useEffect(() => {
+    const storedUsername = localStorage.getItem("username");
+
+    if (storedUsername) {
+      setUsername(storedUsername);
+    }
+  }, []);
 
   const fetchAssignments = async () => {
     try {
       const response = await fetch(
- "http://127.0.0.1:8000/assignments",
- {
-   headers:{
-     Authorization:
-     `Bearer ${localStorage.getItem("token")}`
-   }
- }
-);
+        "http://127.0.0.1:8000/assignments",
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (!response.ok) return;
 
       const data = await response.json();
-
       setAssignments(data);
     } catch (error) {
       console.log(error);
     }
   };
 
-
-  const fetchSubmissions = async()=>{
-
-  try{
-
-    const response = await fetch(
-      "http://127.0.0.1:8000/submissions",
-      {
-        headers:{
-          Authorization:
-          `Bearer ${localStorage.getItem("token")}`
+  const fetchSubmissions = async () => {
+    try {
+      const response = await fetch(
+        "http://127.0.0.1:8000/submissions",
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         }
-      }
-    );
+      );
 
+      if (!response.ok) return;
 
-    const data = await response.json();
-
-    setSubmissions(data);
-
-  }
-  catch(error){
-    console.log(error);
-  }
-
-};
+      const data = await response.json();
+      setSubmissions(data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   useEffect(() => {
     fetchAssignments();
     fetchSubmissions();
   }, []);
 
-
-
-
   const handleCreateAssignment = async () => {
-    const token = localStorage.getItem("token");
-    console.log("ASSIGNMENT TOKEN =", token);
-
     try {
       const response = await fetch(
         "http://127.0.0.1:8000/assignments",
@@ -102,7 +104,7 @@ function TeacherTasks() {
         }
       );
 
-      await response.json();
+      if (!response.ok) return;
 
       setTitle("");
       setDescription("");
@@ -114,199 +116,142 @@ function TeacherTasks() {
       console.log(error);
     }
   };
-  const handleDeleteAssignment = async (
-  assignmentId:number
-) => {
 
-  const token =
-  localStorage.getItem("token");
-
-  try {
-
-    await fetch(
-      `http://127.0.0.1:8000/assignments/${assignmentId}`,
-      {
-        method:"DELETE",
-        headers:{
-          Authorization:
-          `Bearer ${token}`
+  const handleDeleteAssignment = async (assignmentId: number) => {
+    try {
+      const response = await fetch(
+        `http://127.0.0.1:8000/assignments/${assignmentId}`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         }
-      }
-    );
+      );
 
-    fetchAssignments();
+      if (!response.ok) return;
 
-  }
-  catch(error){
-    console.log(error);
-  }
+      fetchAssignments();
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
-};
-
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("role");
+    localStorage.removeItem("username");
+    navigate("/login");
+  };
 
   return (
-    <div className="teacher-tasks-container">
+    <>
+      <Navbar username={username} onLogout={handleLogout} />
 
-      <div className="tasks-header">
-        <h2>Assignment Management</h2>
-        <p>Create and manage assignments for students</p>
-      </div>
-
-      <div className="tasks-grid">
-
-        <div className="task-card">
-
-          <h3>Create Assignment</h3>
-
-          <input
-            type="text"
-            placeholder="Assignment Title"
-            value={title}
-            onChange={(e) =>
-              setTitle(e.target.value)
-            }
-          />
-
-          <input
-            type="text"
-            placeholder="Subject"
-            value={subject}
-            onChange={(e) =>
-              setSubject(e.target.value)
-            }
-          />
-
-          <input
-            type="date"
-            value={deadline}
-            onChange={(e) =>
-              setDeadline(e.target.value)
-            }
-          />
-
-          <textarea
-            placeholder="Assignment Description"
-            value={description}
-            onChange={(e) =>
-              setDescription(e.target.value)
-            }
-          />
-
-          <button
-            onClick={handleCreateAssignment}
-          >
-            Create Assignment
-          </button>
-
+      <div className="teacher-tasks-container">
+        <div className="tasks-header">
+          <h2>Assignment Management</h2>
+          <p>Create and manage assignments for students</p>
         </div>
 
-        <div className="task-card">
+        <div className="tasks-grid">
+          <div className="task-card">
+            <h3>Create Assignment</h3>
 
-          <h3>My Assignments</h3>
+            <input
+              type="text"
+              placeholder="Assignment Title"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+            />
 
-          {assignments.length === 0 ? (
-            <p className="empty-text">
-              No assignments created yet
-            </p>
-          ) : (
-            assignments.map((assignment) => (
-              <div
-  className="assignment-card"
-  key={assignment.id}
->
-  <h4>
-    {assignment.title}
-  </h4>
+            <input
+              type="text"
+              placeholder="Subject"
+              value={subject}
+              onChange={(e) => setSubject(e.target.value)}
+            />
 
-  <span className="subject-badge">
-    {assignment.subject}
-  </span>
+            <input
+              type="date"
+              value={deadline}
+              onChange={(e) => setDeadline(e.target.value)}
+            />
 
-  <p className="deadline">
-    📅 {assignment.deadline}
-  </p>
+            <textarea
+              placeholder="Assignment Description"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+            />
 
-  <p className="description">
-    {assignment.description}
-  </p>
+            <button onClick={handleCreateAssignment}>
+              Create Assignment
+            </button>
+          </div>
 
-  <button
-    className="delete-btn"
-    onClick={() =>
-      handleDeleteAssignment(
-        assignment.id
-      )
-    }
-  >
-    Delete
-  </button>
+          <div className="task-card">
+            <h3>My Assignments</h3>
 
-</div>
-            ))
-          )}
+            {assignments.length === 0 ? (
+              <p className="empty-text">No assignments created yet</p>
+            ) : (
+              assignments.map((assignment) => (
+                <div className="assignment-card" key={assignment.id}>
+                  <h4>{assignment.title}</h4>
 
+                  <span className="subject-badge">
+                    {assignment.subject}
+                  </span>
+
+                  <p className="deadline">
+                    📅 {assignment.deadline}
+                  </p>
+
+                  <p className="description">
+                    {assignment.description}
+                  </p>
+
+                  <button
+                    className="delete-btn"
+                    onClick={() =>
+                      handleDeleteAssignment(assignment.id)
+                    }
+                  >
+                    Delete
+                  </button>
+                </div>
+              ))
+            )}
+          </div>
+
+          <div className="task-card">
+            <h3>Student Submissions</h3>
+
+            {submissions.length === 0 ? (
+              <p className="empty-text">No submissions yet</p>
+            ) : (
+              submissions.map((submission) => (
+                <div className="submission-card" key={submission.id}>
+                  <p>
+                    <strong>{submission.student}</strong>
+                  </p>
+
+                  <p>Assignment: {submission.assignment}</p>
+
+                  <a
+                    href={`http://127.0.0.1:8000/documents/view/${submission.document_id}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    View Submission
+                  </a>
+                </div>
+              ))
+            )}
+          </div>
         </div>
-        <div className="task-card">
-
-<h3>
-Student Submissions
-</h3>
-
-
-{
-submissions.length === 0 ?
-
-<p className="empty-text">
-No submissions yet
-</p>
-
-
-:
-
-submissions.map((submission)=>(
-
-<div
-className="assignment-card"
-key={submission.id}
->
-
-<h4>
-{submission.assignment}
-</h4>
-
-
-<p>
-<b>Student:</b>
-{submission.student}
-</p>
-
-
-<p>
-<b>File:</b>
-{submission.document}
-</p>
-
-
-<a
-href={`http://127.0.0.1:8000/documents/view/${submission.document_id}`}
-target="_blank"
->
-View Submission
-</a>
-
-
-</div>
-
-))
-
-}
-
-
-</div>
-
       </div>
-
-    </div>
+    </>
   );
 }
 

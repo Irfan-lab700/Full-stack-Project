@@ -1,199 +1,346 @@
 .teacher-tasks-container {
-
-  padding: 30px;
-
+  min-height: calc(100vh - 80px);
+  padding: 40px 50px;
+  background: #f4f8f8;
+  box-sizing: border-box;
 }
 
+/* ================= HEADER ================= */
+
 .tasks-header {
-
-  margin-bottom: 30px;
-
+  max-width: 1200px;
+  margin: 0 auto 30px;
 }
 
 .tasks-header h2 {
-
-  font-size: 32px;
-  margin-bottom: 8px;
-  color: #111827;
-
+  margin: 0;
+  color: #1B3C53;
+  font-size: 30px;
+  font-weight: 750;
+  letter-spacing: 0.2px;
 }
 
 .tasks-header p {
-
-  color: #6b7280;
-
+  margin: 7px 0 0;
+  color: #667779;
+  font-size: 15px;
 }
 
+/* ================= GRID ================= */
+
 .tasks-grid {
+  max-width: 1200px;
+  margin: auto;
 
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 25px;
-
+  gap: 24px;
+  align-items: start;
 }
 
+/* ================= CARDS ================= */
+
 .task-card {
-
-  background: white;
-
-  border-radius: 18px;
-
+  background: #ffffff;
+  border: 1px solid #d3e3e4;
+  border-radius: 14px;
   padding: 25px;
 
-  box-shadow:
-    0 10px 25px rgba(0,0,0,0.08);
-
+  box-shadow: 0 5px 18px rgba(27, 60, 83, 0.07);
+  box-sizing: border-box;
 }
 
 .task-card h3 {
+  margin: 0 0 20px;
 
-  margin-bottom: 20px;
+  color: #1B3C53;
+  font-size: 20px;
+  font-weight: 700;
 
-  color: #111827;
-
+  padding-bottom: 13px;
+  border-bottom: 1px solid #e1ebec;
 }
+
+/* ================= FORM ================= */
 
 .task-card input,
 .task-card textarea {
-
   width: 100%;
-
   box-sizing: border-box;
 
-  padding: 12px;
+  padding: 13px 14px;
+  margin-bottom: 13px;
 
-  margin-bottom: 15px;
+  border: 1px solid #c9d9db;
+  border-radius: 8px;
 
-  border: 1px solid #d1d5db;
+  background: #fbfdfd;
+  color: #34393a;
 
-  border-radius: 10px;
-
+  font-family: inherit;
   font-size: 14px;
 
+  outline: none;
+  transition: 0.2s ease;
+}
+
+.task-card input:focus,
+.task-card textarea:focus {
+  border-color: #1B3C53;
+  background: #ffffff;
+  box-shadow: 0 0 0 3px rgba(211, 243, 248, 0.8);
 }
 
 .task-card textarea {
-
-  height: 120px;
-
-  resize: none;
-
+  min-height: 110px;
+  resize: vertical;
 }
 
-.task-card button {
+.task-card input::placeholder,
+.task-card textarea::placeholder {
+  color: #879496;
+}
 
+/* ================= CREATE BUTTON ================= */
+
+.task-card > button:not(.delete-btn) {
   width: 100%;
 
-  padding: 14px;
+  padding: 13px 16px;
 
   border: none;
+  border-radius: 8px;
 
-  border-radius: 10px;
+  background: #1B3C53;
+  color: #d3f3f8;
 
-  background: #2563eb;
-
-  color: white;
+  font-size: 14px;
+  font-weight: 650;
 
   cursor: pointer;
-
-  font-size: 15px;
-
-  font-weight: 600;
-
+  transition: 0.2s ease;
 }
 
-.task-card button:hover {
-
-  background: #1d4ed8;
-
+.task-card > button:not(.delete-btn):hover {
+  background: #244b64;
+  transform: translateY(-1px);
 }
+
+.task-card > button:not(.delete-btn):active {
+  transform: translateY(0);
+}
+
+/* ================= ASSIGNMENT ================= */
 
 .assignment-card {
+  position: relative;
 
-  background: #f9fafb;
+  padding: 17px 18px;
+  margin-bottom: 14px;
 
-  border: 1px solid #e5e7eb;
+  background: #f8fbfb;
 
-  border-radius: 14px;
+  border: 1px solid #d8e5e6;
+  border-radius: 10px;
 
-  padding: 18px;
+  transition: 0.2s ease;
+}
 
-  margin-bottom: 15px;
+.assignment-card:hover {
+  border-color: #aac8cb;
+  background: #ffffff;
+  box-shadow: 0 4px 12px rgba(27, 60, 83, 0.06);
+}
 
+.assignment-card:last-child {
+  margin-bottom: 0;
 }
 
 .assignment-card h4 {
+  margin: 0 0 10px;
 
-  margin-bottom: 10px;
-
-  color: #111827;
-
+  color: #1B3C53;
+  font-size: 17px;
+  font-weight: 700;
 }
+
+/* ================= SUBJECT ================= */
 
 .subject-badge {
-
   display: inline-block;
 
-  background: #dbeafe;
+  padding: 5px 10px;
 
-  color: #1d4ed8;
+  border-radius: 6px;
 
-  padding: 6px 12px;
-
-  border-radius: 999px;
+  background: #d3f3f8;
+  color: #1B3C53;
 
   font-size: 12px;
-
-  font-weight: 600;
-
-  margin-bottom: 10px;
-
+  font-weight: 700;
 }
 
+/* ================= ASSIGNMENT DETAILS ================= */
+
 .deadline {
+  margin: 13px 0 7px;
 
-  margin-top: 12px;
-
-  color: #dc2626;
-
-  font-weight: 600;
-
+  color: #5f7073;
+  font-size: 13px;
+  font-weight: 550;
 }
 
 .description {
+  margin: 0 0 15px;
 
-  margin-top: 10px;
-
-  color: #4b5563;
-
-  line-height: 1.5;
-
+  color: #4b5a5c;
+  font-size: 14px;
+  line-height: 1.55;
 }
+
+/* ================= DELETE ================= */
+
+.delete-btn {
+  padding: 8px 14px;
+
+  border: 1px solid #1B3C53;
+  border-radius: 6px;
+
+  background: transparent;
+  color: #1B3C53;
+
+  font-size: 12px;
+  font-weight: 650;
+
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.delete-btn:hover {
+  background: #1B3C53;
+  color: #d3f3f8;
+}
+
+/* ================= SUBMISSIONS ================= */
+
+.submission-card {
+  padding: 15px 2px;
+
+  border-bottom: 1px solid #dce7e8;
+}
+
+.submission-card:first-of-type {
+  padding-top: 0;
+}
+
+.submission-card:last-child {
+  border-bottom: none;
+}
+
+.submission-card p {
+  margin: 0 0 6px;
+
+  color: #3f4f51;
+  font-size: 14px;
+}
+
+.submission-card strong {
+  color: #1B3C53;
+}
+
+.submission-card a {
+  display: inline-block;
+
+  margin-top: 5px;
+
+  padding: 7px 11px;
+
+  border-radius: 6px;
+
+  background: #d3f3f8;
+  color: #1B3C53;
+
+  font-size: 12px;
+  font-weight: 700;
+
+  text-decoration: none;
+  transition: 0.2s ease;
+}
+
+.submission-card a:hover {
+  background: #1B3C53;
+  color: #d3f3f8;
+}
+
+/* ================= EMPTY ================= */
 
 .empty-text {
+  margin: 5px 0;
 
-  color: #6b7280;
-
+  color: #7b898b;
+  font-size: 14px;
 }
 
-.delete-btn{
-  margin-top:10px;
-  padding:8px 14px;
-  border:none;
-  border-radius:8px;
-  cursor:pointer;
-}
-
-.delete-btn:hover{
-  transform:scale(1.03);
-}
+/* ================= TABLET ================= */
 
 @media (max-width: 900px) {
-
-  .tasks-grid {
-
-    grid-template-columns: 1fr;
-
+  .teacher-tasks-container {
+    padding: 30px;
   }
 
+  .tasks-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ================= MOBILE ================= */
+
+@media (max-width: 600px) {
+  .teacher-tasks-container {
+    padding: 25px 16px;
+  }
+
+  .tasks-header {
+    margin-bottom: 22px;
+  }
+
+  .tasks-header h2 {
+    font-size: 24px;
+  }
+
+  .tasks-header p {
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  .tasks-grid {
+    gap: 18px;
+  }
+
+  .task-card {
+    padding: 19px;
+    border-radius: 12px;
+  }
+
+  .task-card h3 {
+    font-size: 18px;
+    margin-bottom: 17px;
+  }
+
+  .task-card input,
+  .task-card textarea {
+    padding: 12px;
+  }
+
+  .assignment-card {
+    padding: 15px;
+  }
+
+  .assignment-card h4 {
+    font-size: 16px;
+  }
+
+  .description {
+    font-size: 13px;
+  }
 }
