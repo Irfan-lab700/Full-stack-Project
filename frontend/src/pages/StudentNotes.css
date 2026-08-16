@@ -1,75 +1,237 @@
+/* ================= CONTAINER ================= */
+
 .student-notes-container {
-    padding: 30px;
-    min-height: 100vh;
-    background-color: #f8fafc;
+  min-height: calc(100vh - 80px);
+  padding: 40px 50px;
+  background: #f4f8f8;
+  box-sizing: border-box;
 }
 
-.student-notes-container h2 {
-    font-size: 28px;
-    margin-bottom: 25px;
-    color: #1e293b;
+
+/* ================= HEADER ================= */
+
+.notes-header {
+  max-width: 1200px;
+  margin: 0 auto 30px;
 }
 
+.notes-header h2 {
+  margin: 0;
+
+  color: #1B3C53;
+  font-size: 30px;
+  font-weight: 750;
+  letter-spacing: 0.2px;
+}
+
+.notes-header p {
+  margin: 7px 0 0;
+
+  color: #667779;
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+
+/* ================= GRID ================= */
 
 .notes-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 25px;
+  max-width: 1200px;
+  margin: auto;
+
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+
+  align-items: start;
 }
 
 
-.note-card {
-    background: white;
-    padding: 22px;
-    border-radius: 15px;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.08);
-    transition: 0.3s ease;
-    border-left: 5px solid #1B3C53;
+/* ================= NOTE CARD ================= */
+
+.student-note-card {
+  display: flex;
+  gap: 16px;
+
+  background: #ffffff;
+  border: 1px solid #d3e3e4;
+  border-radius: 12px;
+
+  padding: 20px;
+
+  box-shadow: 0 5px 18px rgba(27, 60, 83, 0.06);
+
+  transition: 0.2s ease;
+  box-sizing: border-box;
+}
+
+.student-note-card:hover {
+  border-color: #aac8cb;
+  box-shadow: 0 7px 18px rgba(27, 60, 83, 0.09);
+  transform: translateY(-2px);
 }
 
 
-.note-card:hover {
-    transform: translateY(-5px);
+/* ================= FILE ICON ================= */
+
+.note-icon {
+  flex-shrink: 0;
+
+  width: 42px;
+  height: 48px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 8px;
+
+  background: #d3f3f8;
+  color: #1B3C53;
+
+  font-size: 11px;
+  font-weight: 750;
 }
 
 
-.note-card h4 {
-    margin-bottom: 12px;
-    color: #1B3C53;
-    font-size: 20px;
+/* ================= CONTENT ================= */
+
+.note-content {
+  min-width: 0;
+  flex: 1;
 }
 
 
-.note-card p {
-    color: #64748b;
-    margin-bottom: 20px;
+/* ================= SUBJECT ================= */
+
+.note-subject {
+  display: inline-block;
+
+  margin-bottom: 9px;
+  padding: 5px 9px;
+
+  border-radius: 6px;
+
+  background: #d3f3f8;
+  color: #1B3C53;
+
+  font-size: 11px;
+  font-weight: 700;
 }
 
+
+/* ================= FILE NAME ================= */
+
+.note-content h4 {
+  margin: 0 0 16px;
+
+  color: #1B3C53;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.4;
+
+  word-break: break-word;
+}
+
+
+/* ================= VIEW BUTTON ================= */
 
 .view-note-btn {
+  padding: 8px 13px;
 
-    padding: 10px 18px;
+  border: 1px solid #1B3C53;
+  border-radius: 6px;
 
-    background-color: #1B3C53;
+  background: transparent;
+  color: #1B3C53;
 
-    color: white;
+  font-size: 12px;
+  font-weight: 650;
 
-    border: none;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
 
-    border-radius: 8px;
-
-    cursor: pointer;
-
-    font-size: 14px;
-
-    transition: 0.3s;
+.view-note-btn:hover {
+  background: #1B3C53;
+  color: #d3f3f8;
 }
 
 
-.view-note-btn:hover {
+/* ================= EMPTY ================= */
 
-    background-color: #2563eb;
+.notes-empty {
+  max-width: 1200px;
+  margin: 0 auto;
 
-    transform: scale(1.05);
+  padding: 45px 25px;
 
+  text-align: center;
+
+  background: #ffffff;
+  border: 1px solid #d3e3e4;
+  border-radius: 14px;
+
+  box-shadow: 0 5px 18px rgba(27, 60, 83, 0.06);
+}
+
+.notes-empty h3 {
+  margin: 0 0 7px;
+
+  color: #1B3C53;
+  font-size: 18px;
+}
+
+.notes-empty p {
+  margin: 0;
+
+  color: #7b898b;
+  font-size: 14px;
+}
+
+
+/* ================= TABLET ================= */
+
+@media (max-width: 1000px) {
+  .student-notes-container {
+    padding: 30px;
+  }
+
+  .notes-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+
+/* ================= MOBILE ================= */
+
+@media (max-width: 600px) {
+  .student-notes-container {
+    padding: 25px 16px;
+  }
+
+  .notes-header {
+    margin-bottom: 22px;
+  }
+
+  .notes-header h2 {
+    font-size: 24px;
+  }
+
+  .notes-header p {
+    font-size: 14px;
+  }
+
+  .notes-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .student-note-card {
+    padding: 17px;
+  }
+
+  .note-content h4 {
+    font-size: 15px;
+  }
 }

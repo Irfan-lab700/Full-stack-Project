@@ -1,157 +1,299 @@
+/* ================= CONTAINER ================= */
+
 .teacher-notes-container {
-    padding: 30px;
-    min-height: 100vh;
-    background-color: #f8fafc;
+  min-height: calc(100vh - 80px);
+  padding: 40px 50px;
+  background: #f4f8f8;
+  box-sizing: border-box;
 }
 
 
-.teacher-notes-container h2 {
-    font-size: 28px;
-    color: #1e293b;
-    margin-bottom: 25px;
+/* ================= HEADER ================= */
+
+.teacher-notes-container > h2 {
+  max-width: 1200px;
+  margin: 0 auto 30px;
+
+  color: #1B3C53;
+  font-size: 30px;
+  font-weight: 750;
+  letter-spacing: 0.2px;
 }
 
 
-/* Upload Section */
+/* ================= UPLOAD CARD ================= */
 
 .upload-note-card {
+  max-width: 1200px;
+  margin: 0 auto 35px;
 
-    background: white;
+  background: #ffffff;
+  border: 1px solid #d3e3e4;
+  border-radius: 14px;
+  padding: 25px;
 
-    padding: 25px;
-
-    border-radius: 15px;
-
-    box-shadow: 0 5px 15px rgba(0,0,0,0.08);
-
-    margin-bottom: 35px;
-
+  box-shadow: 0 5px 18px rgba(27, 60, 83, 0.07);
+  box-sizing: border-box;
 }
-
 
 .upload-note-card h3 {
+  margin: 0 0 20px;
 
-    color: #1B3C53;
+  color: #1B3C53;
+  font-size: 20px;
+  font-weight: 700;
 
-    margin-bottom: 20px;
-
+  padding-bottom: 13px;
+  border-bottom: 1px solid #e1ebec;
 }
 
 
-.upload-note-card input {
+/* ================= INPUTS ================= */
 
-    width: 100%;
+.upload-note-card input[type="text"],
+.upload-note-card input[type="file"] {
+  width: 100%;
+  box-sizing: border-box;
 
-    padding: 12px;
+  padding: 13px 14px;
+  margin-bottom: 13px;
 
-    margin-bottom: 15px;
+  border: 1px solid #c9d9db;
+  border-radius: 8px;
 
-    border: 1px solid #cbd5e1;
+  background: #fbfdfd;
+  color: #34393a;
 
-    border-radius: 8px;
+  font-family: inherit;
+  font-size: 14px;
+  outline: none;
 
+  transition: 0.2s ease;
 }
 
+.upload-note-card input[type="text"]:focus {
+  border-color: #1B3C53;
+  background: #ffffff;
+  box-shadow: 0 0 0 3px rgba(211, 243, 248, 0.8);
+}
+
+.upload-note-card input[type="file"] {
+  cursor: pointer;
+}
+
+
+/* ================= SELECTED FILE ================= */
+
+.upload-note-card > p {
+  margin: 2px 0 15px;
+
+  color: #5f7073;
+  font-size: 13px;
+}
+
+
+/* ================= UPLOAD BUTTON ================= */
 
 .upload-btn {
+  width: 100%;
 
-    padding: 10px 20px;
+  padding: 13px 16px;
 
-    background-color: #1B3C53;
+  border: none;
+  border-radius: 8px;
 
-    color: white;
+  background: #1B3C53;
+  color: #d3f3f8;
 
-    border: none;
+  font-size: 14px;
+  font-weight: 650;
 
-    border-radius: 8px;
-
-    cursor: pointer;
-
+  cursor: pointer;
+  transition: 0.2s ease;
 }
-
 
 .upload-btn:hover {
+  background: #244b64;
+  transform: translateY(-1px);
+}
 
-    background-color: #2563eb;
-
+.upload-btn:active {
+  transform: translateY(0);
 }
 
 
-/* Uploaded Notes */
+/* ================= MESSAGE ================= */
 
+.upload-note-card p:last-child {
+  margin: 13px 0 0;
+
+  color: #5f7073;
+  font-size: 13px;
+}
+
+
+/* ================= NOTES HEADER ================= */
+
+.teacher-notes-container > h3 {
+  max-width: 1200px;
+  margin: 0 auto 18px;
+
+  color: #1B3C53;
+  font-size: 20px;
+  font-weight: 700;
+}
+
+
+/* ================= NOTES GRID ================= */
 
 .notes-grid {
+  max-width: 1200px;
+  margin: auto;
 
-    display: grid;
-
-    grid-template-columns: repeat(
-        auto-fit,
-        minmax(280px,1fr)
-    );
-
-    gap: 25px;
-
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
 }
 
 
+/* ================= NOTE CARD ================= */
 
 .teacher-note-card {
+  position: relative;
 
-    background:white;
+  background: #ffffff;
+  border: 1px solid #d3e3e4;
+  border-radius: 12px;
+  padding: 20px;
 
-    padding:22px;
+  box-shadow: 0 5px 18px rgba(27, 60, 83, 0.06);
 
-    border-radius:15px;
+  transition: 0.2s ease;
+}
 
-    box-shadow:0 5px 15px rgba(0,0,0,0.08);
-
-    border-left:5px solid #1B3C53;
-
+.teacher-note-card:hover {
+  border-color: #aac8cb;
+  box-shadow: 0 6px 16px rgba(27, 60, 83, 0.09);
+  transform: translateY(-2px);
 }
 
 
+/* ================= NOTE SUBJECT ================= */
 
 .teacher-note-card h4 {
+  margin: 0 0 10px;
 
-    color:#1B3C53;
-
-    margin-bottom:10px;
-
+  color: #1B3C53;
+  font-size: 17px;
+  font-weight: 700;
 }
 
 
+/* ================= FILE NAME ================= */
 
 .teacher-note-card p {
+  margin: 0 0 18px;
 
-    color:#64748b;
+  color: #5f7073;
+  font-size: 13px;
 
-    margin-bottom:15px;
-
+  line-height: 1.5;
+  word-break: break-word;
 }
 
 
-
-/* Delete Button */
+/* ================= DELETE BUTTON ================= */
 
 .delete-note-btn {
+  padding: 8px 14px;
 
-    padding:8px 15px;
+  border: 1px solid #1B3C53;
+  border-radius: 6px;
 
-    background:#dc2626;
+  background: transparent;
+  color: #1B3C53;
 
-    color:white;
+  font-size: 12px;
+  font-weight: 650;
 
-    border:none;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
 
-    border-radius:8px;
-
-    cursor:pointer;
-
+.delete-note-btn:hover {
+  background: #1B3C53;
+  color: #d3f3f8;
 }
 
 
-.delete-note-btn:hover {
+/* ================= EMPTY STATE ================= */
 
-    background:#b91c1c;
+.notes-grid > p {
+  grid-column: 1 / -1;
 
+  margin: 5px 0;
+
+  color: #7b898b;
+  font-size: 14px;
+}
+
+
+/* ================= TABLET ================= */
+
+@media (max-width: 900px) {
+  .teacher-notes-container {
+    padding: 30px;
+  }
+
+  .notes-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+
+/* ================= MOBILE ================= */
+
+@media (max-width: 600px) {
+  .teacher-notes-container {
+    padding: 25px 16px;
+  }
+
+  .teacher-notes-container > h2 {
+    margin-bottom: 22px;
+    font-size: 24px;
+  }
+
+  .upload-note-card {
+    padding: 19px;
+    border-radius: 12px;
+    margin-bottom: 28px;
+  }
+
+  .upload-note-card h3 {
+    font-size: 18px;
+    margin-bottom: 17px;
+  }
+
+  .upload-note-card input[type="text"],
+  .upload-note-card input[type="file"] {
+    padding: 12px;
+  }
+
+  .teacher-notes-container > h3 {
+    font-size: 18px;
+    margin-bottom: 16px;
+  }
+
+  .notes-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .teacher-note-card {
+    padding: 17px;
+  }
+
+  .teacher-note-card h4 {
+    font-size: 16px;
+  }
 }

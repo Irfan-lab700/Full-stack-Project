@@ -618,6 +618,7 @@ def create_assignment(
                 detail="Invalid token"
             )
 
+        # Admin = Teacher
         if user_data["role"] != "admin":
             raise HTTPException(
                 status_code=403,
@@ -681,17 +682,21 @@ def get_assignments(
                 detail="User not found"
             )
 
+        # Teacher sees only their own assignments
         if user_data["role"] == "admin":
-
-            # Teacher sees only their own assignments
             assignments = db.query(Assignment).filter(
                 Assignment.created_by == user.id
             ).all()
 
-        else:
-
-            # Students can see all available assignments
+        # Students see all available assignments
+        elif user_data["role"] == "user":
             assignments = db.query(Assignment).all()
+
+        else:
+            raise HTTPException(
+                status_code=403,
+                detail="Access denied"
+            )
 
         return [
             {
@@ -726,6 +731,7 @@ def delete_assignment(
                 detail="Invalid token"
             )
 
+        # Admin = Teacher
         if user_data["role"] != "admin":
             raise HTTPException(
                 status_code=403,
@@ -787,6 +793,7 @@ def create_submission(
                 detail="Invalid token"
             )
 
+        # Only students can submit
         if user_data["role"] != "user":
             raise HTTPException(
                 status_code=403,
@@ -813,6 +820,18 @@ def create_submission(
                 detail="Assignment not found"
             )
 
+        # Prevent duplicate submission
+        existing_submission = db.query(Submission).filter(
+            Submission.assignment_id == submission.assignment_id,
+            Submission.student_id == user.id
+        ).first()
+
+        if existing_submission:
+            raise HTTPException(
+                status_code=409,
+                detail="You have already submitted this assignment"
+            )
+
         document = db.query(Document).filter(
             Document.id == submission.document_id
         ).first()
@@ -823,7 +842,7 @@ def create_submission(
                 detail="Document not found"
             )
 
-        # Student can submit only their own uploaded document
+        # Student can submit only their own document
         if document.uploaded_by != user.id:
             raise HTTPException(
                 status_code=403,
@@ -875,16 +894,17 @@ def get_submissions(
                 detail="User not found"
             )
 
+        # Student sees only their own submissions
         if user_data["role"] == "user":
 
-            # Student sees only their own submissions
             submissions = db.query(Submission).filter(
                 Submission.student_id == current_user.id
             ).all()
 
+        # Teacher sees submissions only
+        # for assignments created by that teacher
         elif user_data["role"] == "admin":
 
-            # Teacher gets only assignments created by them
             teacher_assignment_ids = db.query(
                 Assignment.id
             ).filter(
@@ -901,7 +921,10 @@ def get_submissions(
             ).all()
 
         else:
-            submissions = []
+            raise HTTPException(
+                status_code=403,
+                detail="Access denied"
+            )
 
         result = []
 
@@ -982,19 +1005,18 @@ def delete_submission(
                 detail="User not found"
             )
 
+        # Student
         if user_data["role"] == "user":
 
-            # Student can delete only their own submission
             if submission.student_id != current_user.id:
                 raise HTTPException(
                     status_code=403,
                     detail="You can only delete your own submission"
                 )
 
+        # Teacher
         elif user_data["role"] == "admin":
 
-            # Teacher can delete only submissions
-            # belonging to their own assignments
             assignment = db.query(Assignment).filter(
                 Assignment.id == submission.assignment_id
             ).first()
@@ -1008,7 +1030,10 @@ def delete_submission(
             if assignment.created_by != current_user.id:
                 raise HTTPException(
                     status_code=403,
-                    detail="You can only delete submissions from your assignments"
+                    detail=(
+                        "You can only delete submissions "
+                        "from your assignments"
+                    )
                 )
 
         else:
@@ -1069,21 +1094,17 @@ def get_my_documents(
 
     finally:
         db.close()
-        
+
 @app.post("/opportunities")
 def create_opportunity(
     opportunity: OpportunityCreate,
     credentials: HTTPAuthorizationCredentials = Depends(security)
 ):
-
     db = SessionLocal()
 
     try:
-
         token = credentials.credentials
-
         user_data = verify_token(token)
-
 
         if not user_data:
             raise HTTPException(
@@ -1091,135 +1112,152 @@ def create_opportunity(
                 detail="Invalid token"
             )
 
-
-        if user_data["role"] not in ["teacher","admin"]:
+        # Admin = Teacher
+        if user_data["role"] != "admin":
             raise HTTPException(
                 status_code=403,
-                detail="Only teacher can create opportunity"
+                detail="Only teachers can create opportunities"
             )
-
 
         user = db.query(DBUser).filter(
             DBUser.username == user_data["username"]
         ).first()
 
-
+        if not user:
+            raise HTTPException(
+                status_code=404,
+                detail="User not found"
+            )
 
         new_opportunity = Opportunity(
-
             company_name=opportunity.company_name,
-
             role=opportunity.role,
-
-            skills=
-            opportunity.skills,
-
-            description=
-            opportunity.description,
-
-            deadline=
-            opportunity.deadline,
-
-            apply_link=
-            opportunity.apply_link,
-
+            skills=opportunity.skills,
+            description=opportunity.description,
+            deadline=opportunity.deadline,
+            apply_link=opportunity.apply_link,
             created_by=user.id
-
         )
 
-
         db.add(new_opportunity)
-
         db.commit()
-
         db.refresh(new_opportunity)
 
-
-        return new_opportunity
-
+        return {
+            "message": "Opportunity created successfully",
+            "opportunity_id": new_opportunity.id
+        }
 
     finally:
         db.close()
-        
+
+
 @app.get("/opportunities")
 def get_opportunities(
-credentials: HTTPAuthorizationCredentials = Depends(security)
+    credentials: HTTPAuthorizationCredentials = Depends(security)
 ):
-
-    db=SessionLocal()
+    db = SessionLocal()
 
     try:
-
-        token=credentials.credentials
-
-        user_data=verify_token(token)
-
+        token = credentials.credentials
+        user_data = verify_token(token)
 
         if not user_data:
             raise HTTPException(
-                status_code=401
+                status_code=401,
+                detail="Invalid token"
             )
 
+        user = db.query(DBUser).filter(
+            DBUser.username == user_data["username"]
+        ).first()
 
-        opportunities = db.query(
-            Opportunity
-        ).all()
+        if not user:
+            raise HTTPException(
+                status_code=404,
+                detail="User not found"
+            )
 
+        # Students can see all opportunities.
+        # Teachers also see all opportunities here.
+        opportunities = db.query(Opportunity).all()
 
-        return opportunities
-
+        return [
+            {
+                "id": item.id,
+                "company_name": item.company_name,
+                "role": item.role,
+                "skills": item.skills,
+                "description": item.description,
+                "deadline": item.deadline,
+                "status": item.status,
+                "apply_link": item.apply_link,
+                "created_by": item.created_by
+            }
+            for item in opportunities
+        ]
 
     finally:
         db.close()
-        
+
+
 @app.delete("/opportunities/{id}")
 def delete_opportunity(
-id:int,
-credentials: HTTPAuthorizationCredentials = Depends(security)
+    id: int,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
 ):
-
-    db=SessionLocal()
+    db = SessionLocal()
 
     try:
+        token = credentials.credentials
+        user_data = verify_token(token)
 
-        token=credentials.credentials
-
-        user_data=verify_token(token)
-
-
-        if user_data["role"] not in [
-            "teacher",
-            "admin"
-        ]:
+        if not user_data:
             raise HTTPException(
-                status_code=403
+                status_code=401,
+                detail="Invalid token"
             )
 
+        # Admin = Teacher
+        if user_data["role"] != "admin":
+            raise HTTPException(
+                status_code=403,
+                detail="Only teachers can delete opportunities"
+            )
 
-        opportunity = db.query(
-            Opportunity
-        ).filter(
-            Opportunity.id==id
+        user = db.query(DBUser).filter(
+            DBUser.username == user_data["username"]
         ).first()
 
+        if not user:
+            raise HTTPException(
+                status_code=404,
+                detail="User not found"
+            )
 
+        opportunity = db.query(Opportunity).filter(
+            Opportunity.id == id
+        ).first()
 
         if not opportunity:
             raise HTTPException(
-                status_code=404
+                status_code=404,
+                detail="Opportunity not found"
             )
 
+        # Teacher can delete only their own opportunity
+        if opportunity.created_by != user.id:
+            raise HTTPException(
+                status_code=403,
+                detail="You can only delete your own opportunities"
+            )
 
         db.delete(opportunity)
-
         db.commit()
 
-
         return {
-            "message":
-            "Opportunity deleted"
+            "message": "Opportunity deleted successfully"
         }
-
 
     finally:
         db.close()
